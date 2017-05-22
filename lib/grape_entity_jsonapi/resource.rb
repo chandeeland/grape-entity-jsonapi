@@ -1,34 +1,36 @@
 module GrapeEntityJsonapi
-  class Resource < Grape::Jsonapi::ResourceIdentifier
+  class Resource < ::GrapeEntityJsonapi::ResourceIdentifier
 
     class << self
       def attributes_exposure
-        @attributes_exposure ||= Exposure.new(:attributes, nesting: true).tap do |attributes|
-          data_exposure.nested_exposures << attributes
+        @attributes_exposure ||= ::Grape::Entity::Exposure.new(:attributes, nesting: true).tap do |attributes|
+          root_exposure.nested_exposures << attributes
         end
       end
 
       def relationships_exposure
-        @relationships_exposure ||= Exposure.new(:relationships, nesting: true).tap do |relationship|
-          relationship.nested_exposures << Exposure.new(:data, nesting: true)
-          data_exposure.nested_exposures << relationship
+        @relationships_exposure ||= ::Grape::Entity::Exposure.new(:relationships, nesting: true).tap do |relationship|
+          relationship.nested_exposures << ::Grape::Entity::Exposure.new(:data, nesting: true)
+          root_exposure.nested_exposures << relationship
         end
       end
     end
 
     # expose a field inside of :attributes stanza
     def self.attribute(*args, &block)
-      old_nesting_stack = @nesting_stack
-      @nesting_stack = [ attributes_exposure ]
-      expose(*args, block)
-      @nesting_stack = old_nesting_stack
+      _expose_inside(attributes_exposure, args, block)
     end
 
     # expose a nested resource fully nested under :relationships
     def self.nest(*args, &block)
+      _expose_inside(relationships_exposure.find_nested_exposure(:data), args, block)
+    end
+
+    def self._expose_inside(new_nesting_stack, args, block)
       old_nesting_stack = @nesting_stack
-      @nesting_stack = [ relationships_exposure.find_exposure(:data) ]
-      expose(*args, block)
+      @nesting_stack = [ new_nesting_stack ]
+      expose(*args) unless block_given?
+      expose(*args, &block) if block_given?
       @nesting_stack = old_nesting_stack
     end
 

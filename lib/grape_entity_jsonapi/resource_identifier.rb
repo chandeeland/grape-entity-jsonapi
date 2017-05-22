@@ -3,8 +3,10 @@ module GrapeEntityJsonapi
     expose :type
     expose :id
 
-    expose :meta, if: meta.keys.count > 0
-
+    expose :meta, if: lambda { |instance, options|
+      instance.respond_to? :meta &&
+      instance.meta.keys.count > 0
+    }
     private
 
     def type

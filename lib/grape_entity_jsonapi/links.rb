@@ -6,10 +6,10 @@ module GrapeEntityJsonapi
       '(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))' +
       '|(?:(?:[a-z\x{00a1}-\x{ffff}0-9]+-?)*[a-z\x{00a1}-\x{ffff}0-9]+)' +
       '(?:\.(?:[a-z\x{00a1}-\x{ffff}0-9]+-?)*[a-z\x{00a1}-\x{ffff}0-9]+)*' +
-      '(?:\.(?:[a-z\x{00a1}-\x{ffff}]{2,})))(?::\d{2,5})?(?:/[^\s]*)?$_iuS' +
+      '(?:\.(?:[a-z\x{00a1}-\x{ffff}]{2,})))(?::\d{2,5})?(?:/[^\s]*)?$_iuS'
 
-    expose :myself, as: :self, regex: URL_REGEX
-    expose :related, regex: URL_REGEX, if: related
+    expose :myself, as: :self
+    expose :related, if: lambda { |instance, options| instance.related.present? }
 
     # @TODO implement paging
 
