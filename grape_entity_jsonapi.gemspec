@@ -17,13 +17,13 @@ Gem::Specification.new do |s|
 
   s.add_runtime_dependency 'grape-entity', '~> 0.6', '>=0.6.0'
 
-  s.add_development_dependency 'bundler'
-  s.add_development_dependency 'rake'
+  s.add_development_dependency 'bundler', '~> 1.14'
+  s.add_development_dependency 'rake', ' ~> 12.0'
   s.add_development_dependency 'rubocop', '~> 0.48'
   s.add_development_dependency 'rspec', '~> 3.0'
-  s.add_development_dependency 'rack-test'
-  s.add_development_dependency 'pry' unless RUBY_PLATFORM.eql?('java') || RUBY_ENGINE.eql?('rbx')
-  s.add_development_dependency 'pry-byebug' unless RUBY_PLATFORM.eql?('java') || RUBY_ENGINE.eql?('rbx')
+  s.add_development_dependency 'rack-test', '~> 0.6'
+  s.add_development_dependency 'pry', '~> 0.10' unless RUBY_PLATFORM.eql?('java') || RUBY_ENGINE.eql?('rbx')
+  s.add_development_dependency 'pry-byebug', '~> 3.4' unless RUBY_PLATFORM.eql?('java') || RUBY_ENGINE.eql?('rbx')
 
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec}/*`.split("\n")
