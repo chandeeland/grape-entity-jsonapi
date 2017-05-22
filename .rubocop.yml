@@ -21,3 +21,12 @@ Style/RaiseArgs:
 
 Lint/UnneededDisable:
   Enabled: false
+
+Metrics/LineLength:
+  Max: 120
+
+Style/BlockLength:
+  Exclude:
+    - 'Rakefile'
+    - '**/*.rake'
+    - 'spec/**/*'

@@ -1,6 +1,5 @@
 module GrapeEntityJsonapi
   class Resource < ::GrapeEntityJsonapi::ResourceIdentifier
-
     class << self
       def attributes_exposure
         @attributes_exposure ||= ::Grape::Entity::Exposure.new(:attributes, nesting: true).tap do |attributes|
@@ -28,7 +27,7 @@ module GrapeEntityJsonapi
 
     def self._expose_inside(new_nesting_stack, args, block)
       old_nesting_stack = @nesting_stack
-      @nesting_stack = [ new_nesting_stack ]
+      @nesting_stack = [new_nesting_stack]
       expose(*args) unless block_given?
       expose(*args, &block) if block_given?
       @nesting_stack = old_nesting_stack

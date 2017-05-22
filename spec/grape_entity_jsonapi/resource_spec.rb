@@ -9,15 +9,14 @@ describe GrapeEntityJsonapi::Resource do
   context '#fields' do
     subject { fresh_class.root_exposures.map(&:attribute) }
     it 'has correct fields' do
-      expect(subject).to eq [:type, :id, :meta]
+      expect(subject).to eq %i[type id meta]
     end
   end
 
   context '#class methods' do
     context '.attribute' do
-
       subject do
-        fresh_class.root_exposures.select {|r| r.attribute == :attributes}
+        fresh_class.root_exposures.select { |r| r.attribute == :attributes }
       end
 
       context 'when no block is passed' do
@@ -26,13 +25,13 @@ describe GrapeEntityJsonapi::Resource do
         end
 
         it 'adds attributes field' do
-          expect (fresh_class.root_exposures.map(&:attribute)).include? :attributes
+          expect fresh_class.root_exposures.map(&:attribute).include? :attributes
         end
 
         it 'correctly nest fields under an :attribute label' do
           expect(subject.count).to eql 1
           expect(subject.first.nested_exposures.size).to eql(3)
-          expect(subject.first.nested_exposures.map(&:attribute)).to eql(%i(aaa bbb ccc))
+          expect(subject.first.nested_exposures.map(&:attribute)).to eql(%i[aaa bbb ccc])
         end
       end
 
@@ -45,16 +44,14 @@ describe GrapeEntityJsonapi::Resource do
 
         it 'correctly nest fields under an :attribute label' do
           expect(subject.count).to eql 1
-          expect(subject.first.nested_exposures.map(&:attribute)).to eql(%i(ddd))
+          expect(subject.first.nested_exposures.map(&:attribute)).to eql(%i[ddd])
         end
       end
-
     end
 
     context '.nest' do
-
       subject do
-        fresh_class.root_exposures.select {|r| r.attribute == :relationships}
+        fresh_class.root_exposures.select { |r| r.attribute == :relationships }
       end
 
       before do
@@ -77,6 +74,5 @@ describe GrapeEntityJsonapi::Resource do
         expect(relationships_data.first.attribute).to eq(:aaa)
       end
     end
-
   end
 end

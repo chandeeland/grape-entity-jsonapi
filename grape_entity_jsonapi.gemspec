@@ -25,7 +25,6 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'pry' unless RUBY_PLATFORM.eql?('java') || RUBY_ENGINE.eql?('rbx')
   s.add_development_dependency 'pry-byebug' unless RUBY_PLATFORM.eql?('java') || RUBY_ENGINE.eql?('rbx')
 
-
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec}/*`.split("\n")
   s.require_paths = ['lib']
