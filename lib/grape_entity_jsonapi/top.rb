@@ -1,5 +1,5 @@
 module GrapeEntityJsonapi
-  class Top < Grape::Entity
+  class Top < ::Grape::Entity
     expose :data,
            using: ::GrapeEntityJsonapi::Resource,
            unless: ->(_intance, _options) { instance.errors.present? }

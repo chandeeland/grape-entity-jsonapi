@@ -1,5 +1,5 @@
 module GrapeEntityJsonapi
-  class Errors < Grape::Entity
+  class Errors < ::Grape::Entity
     # a unique identifier for this particular occurrence of the problem
     expose :id, if: ->(instance, _options) { instance.id.present? }
 

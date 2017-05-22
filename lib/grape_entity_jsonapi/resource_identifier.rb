@@ -1,5 +1,5 @@
 module GrapeEntityJsonapi
-  class ResourceIdentifier < Grape::Entity
+  class ResourceIdentifier < ::Grape::Entity
     expose :type
     expose :id
 

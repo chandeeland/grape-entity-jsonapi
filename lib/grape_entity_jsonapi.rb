@@ -1,3 +1,5 @@
+require 'grape-entity'
+
 require 'grape_entity_jsonapi/errors'
 require 'grape_entity_jsonapi/links'
 require 'grape_entity_jsonapi/resource_identifier'
