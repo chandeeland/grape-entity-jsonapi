@@ -2,6 +2,17 @@ module Grape
   module Jsonapi
     module Entity
       class ResourceIdentifier < ::Grape::Entity
+        class << self
+          def type_plural
+            @type_plural ||= name.downcase.pluralize
+          end
+        end
+
+        def self.root(plural, _singular)
+          @type_plural = plural
+          super('data')
+        end
+
         expose :type
         expose :id
 
@@ -12,8 +23,7 @@ module Grape
         private
 
         def type
-          # self.class.name.downclase.pluralize
-          collection_root
+          object.fetch(:type, nil) || self.class.type_plural
         end
       end
     end

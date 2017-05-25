@@ -8,7 +8,7 @@ Style/FileName:
     - 'Gemfile'
     - 'Rakefile'
     - 'grape-entity.gemspec'
-    - 'lib/grape-entity.rb'
+    - 'lib/grape-jsonapi_entity.rb'
 
 Style/Documentation:
   Enabled: false
@@ -25,7 +25,7 @@ Lint/UnneededDisable:
 Metrics/LineLength:
   Max: 120
 
-Style/BlockLength:
+Metrics/BlockLength:
   Exclude:
     - 'Rakefile'
     - '**/*.rake'
