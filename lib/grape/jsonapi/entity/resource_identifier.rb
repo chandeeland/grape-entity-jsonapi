@@ -23,7 +23,7 @@ module Grape
         private
 
         def type
-          object.fetch(:type, nil) || self.class.type_plural
+          (Delegator.new object).delegate(:type) || self.class.type_plural
         end
       end
     end

@@ -2,7 +2,7 @@
 
 $LOAD_PATH.push File.expand_path('../lib', __FILE__)
 
-require File.expand_path("../lib/grape/jsonapi/version", __FILE__)
+require File.expand_path('../lib/grape/jsonapi/version', __FILE__)
 
 Gem::Specification.new do |s|
   s.name          = 'grape-jsonapi_entity'
