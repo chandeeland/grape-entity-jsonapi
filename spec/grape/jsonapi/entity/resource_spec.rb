@@ -1,7 +1,6 @@
-require 'spec_helper'
 require 'ostruct'
 
-describe GrapeEntityJsonapi::Resource do
+describe Grape::Jsonapi::Entity::Resource do
   let(:fresh_class) { Class.new(described_class) }
 
   subject { fresh_class }

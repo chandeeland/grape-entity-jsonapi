@@ -3,6 +3,6 @@ Bundler.setup
 
 require 'pry-byebug'
 require 'grape_entity'
-require 'grape_entity_jsonapi'
+require 'grape-jsonapi_entity'
 
 RSpec.configure(&:raise_errors_for_deprecations!)

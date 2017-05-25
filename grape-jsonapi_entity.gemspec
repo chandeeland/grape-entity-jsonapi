@@ -1,12 +1,12 @@
-
 # frozen_string_literal: true
 
 $LOAD_PATH.push File.expand_path('../lib', __FILE__)
-require 'grape_entity_jsonapi/version'
+
+require 'grape-jsonapi_entity'
 
 Gem::Specification.new do |s|
-  s.name          = 'grape-entity-jsonapi'
-  s.version       = GrapeEntityJsonapi::VERSION
+  s.name          = 'grape-jsonapi_entity'
+  s.version       = Grape::Jsonapi::VERSION
   s.platform      = Gem::Platform::RUBY
   s.date          = '2017-05-18'
   s.summary       = 'Json API v1.0 compliant sugar for grape entities'

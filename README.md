@@ -1,1 +1,1 @@
-# grape-entity-jsonapi
+# grape-jsonapi_entity
