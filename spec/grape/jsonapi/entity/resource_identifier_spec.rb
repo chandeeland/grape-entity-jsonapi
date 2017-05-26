@@ -1,5 +1,3 @@
-require 'json'
-
 describe Grape::Jsonapi::Entity::ResourceIdentifier do
   class Cow < described_class
   end
@@ -12,8 +10,7 @@ describe Grape::Jsonapi::Entity::ResourceIdentifier do
     let(:single) { 'cat' }
 
     subject do
-      json = fresh_class.represent(data).to_json
-      JSON.parse(json)
+      fresh_class.represent(data).serializable_hash
     end
 
     context 'when entity has root set' do
@@ -26,7 +23,7 @@ describe Grape::Jsonapi::Entity::ResourceIdentifier do
         end
 
         it 'should show object.type' do
-          expect(subject).to include('type' => 'dogs')
+          expect(subject).to include(type: 'dogs')
         end
       end
 
@@ -36,7 +33,21 @@ describe Grape::Jsonapi::Entity::ResourceIdentifier do
         end
 
         it 'uses the entity root' do
-          expect(subject).to include('type' => 'cats')
+          expect(subject).to include(type: 'cats')
+        end
+      end
+
+      context 'when object is plural' do
+        let(:data) do
+          [{ id: 123 }, { id: 234 }]
+        end
+
+        subject do
+          fresh_class.represent(data).map(&:serializable_hash)
+        end
+
+        it 'shows plural correctly' do
+          expect(subject).to eq [{ type: 'cats', id: 123 }, { type: 'cats', id: 234 }]
         end
       end
     end
@@ -50,7 +61,7 @@ describe Grape::Jsonapi::Entity::ResourceIdentifier do
         end
 
         it 'should show object.type' do
-          expect(subject).to include('type' => 'dogs')
+          expect(subject).to include(type: 'dogs')
         end
       end
 
@@ -60,7 +71,7 @@ describe Grape::Jsonapi::Entity::ResourceIdentifier do
         end
 
         it 'uses the entity class name' do
-          expect(subject).to include('type' => 'mice')
+          expect(subject).to include(type: 'mice')
         end
       end
     end

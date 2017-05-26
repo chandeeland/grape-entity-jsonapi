@@ -2,14 +2,13 @@ module Grape
   module Jsonapi
     module Entity
       class ResourceIdentifier < ::Grape::Entity
-        
         class << self
           attr_reader :type_plural
         end
 
-        def self.root(plural, _singular)
+        def self.root(plural, singular, for_real = false)
           @type_plural = plural
-          super('data')
+          super(plural, singular) if for_real
         end
 
         expose :type
@@ -26,7 +25,6 @@ module Grape
             self.class.type_plural ||
             self.class.name.split('::').last.downcase.pluralize
         end
-
       end
     end
   end

@@ -55,6 +55,7 @@ describe Grape::Jsonapi::Entity::Resource do
 
       before do
         fresh_class.nest :aaa
+        fresh_class.nest :bbb
       end
 
       it 'adds :relationships field' do
@@ -62,15 +63,20 @@ describe Grape::Jsonapi::Entity::Resource do
       end
 
       let(:relationships) { subject.first.nested_exposures }
-      it 'has a :data label inside' do
-        expect(relationships.size).to eq 1
-        expect(relationships.first.attribute).to eq :data
+      it 'has :[relative] labels inside' do
+        expect(relationships.size).to eq 2
+        expect(relationships.map(&:attribute)).to eq %i[aaa bbb]
       end
 
-      let(:relationships_data) { relationships.first.nested_exposures }
-      it 'correctly nest fields under an :relationships:data label' do
-        expect(relationships_data.size).to eql(1)
-        expect(relationships_data.first.attribute).to eq(:aaa)
+      let(:relationships_child) { relationships.first.nested_exposures }
+      it 'has a :data label inside' do
+        expect(relationships_child.size).to eql(1)
+        expect(relationships_child.first.attribute).to eq(:data)
+      end
+
+      let(:rel_child_data) { relationships_child.first }
+      it 'has correct options' do
+        expect(rel_child_data.send(:options)).to eq(using: Grape::Jsonapi::Entity::ResourceIdentifier)
       end
     end
   end
