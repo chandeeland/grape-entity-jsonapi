@@ -4,11 +4,12 @@ module Grape
       class Top < ::Grape::Entity
         expose :data,
                using: ::Grape::Jsonapi::Entity::Resource,
-               unless: ->(_intance, _options) { instance.errors.present? }
+               #  parent: self,
+               unless: ->(instance, _options) { instance.errors.present? }
 
         expose :errors,
                using: ::Grape::Jsonapi::Entity::Errors,
-               if: ->(_intance, _options) { instance.errors.present? }
+               if: ->(instance, _options) { instance.errors.present? }
 
         # meta may display any hash
         expose :meta, if: ->(instance, _options) { instance.meta.present? }
@@ -31,7 +32,7 @@ module Grape
         private
 
         def json_api_version
-          ENV['JSOIN_API_VERSION'] || '1.0'
+          ENV['JSON_API_VERSION'] || '1.0'
         end
       end
     end

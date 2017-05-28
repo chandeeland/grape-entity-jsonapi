@@ -20,6 +20,14 @@ module Grape
               end
             end
           end
+
+          def included_exposure
+            @included_exposure ||= begin
+              ::Grape::Entity::Exposure.new(:included, nesting: true).tap do |include|
+                root_exposure.nested_exposures << include
+              end
+            end
+          end
         end
 
         def self.root(plural, _singular)
@@ -31,15 +39,29 @@ module Grape
           _expose_inside(attributes_exposure, args, block)
         end
 
-        # @TODO implement compound-documents
         def self.nest(name, options = {})
-          link_opts = options.merge(using: Grape::Jsonapi::Entity::ResourceIdentifier)
+          _expose_relationships(name, options)
+          _expose_included(name, options)
+        end
 
+        def self._link_opts(name, options)
+          using_name = name
+          using_name = options[:using].name.split('::').last.downcase.pluralize unless options.fetch(:using, nil).nil?
+
+          options.merge(
+            as: 'data',
+            using: Class.new(Grape::Jsonapi::Entity::ResourceIdentifier).tap { |klass| klass.root(using_name) }
+          )
+        end
+
+        def self._expose_relationships(name, options = {})
           relation = ::Grape::Entity::Exposure.new(name, nesting: true)
-
           relationships_exposure.nested_exposures << relation
+          _expose_inside(relation, [name, _link_opts(name, options)], nil)
+        end
 
-          _expose_inside(relation, ['data', link_opts], nil)
+        def self._expose_included(name, options = {})
+          _expose_inside(included_exposure, [name, options], nil)
         end
 
         def self._expose_inside(new_nesting_stack, args, block)

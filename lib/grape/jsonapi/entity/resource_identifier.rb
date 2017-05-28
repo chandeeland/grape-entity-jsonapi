@@ -6,7 +6,7 @@ module Grape
           attr_reader :type_plural
         end
 
-        def self.root(plural, singular, for_real = false)
+        def self.root(plural, singular = nil, for_real = false)
           @type_plural = plural
           super(plural, singular) if for_real
         end
