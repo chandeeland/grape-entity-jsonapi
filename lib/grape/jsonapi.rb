@@ -1,3 +1,4 @@
+require 'grape/jsonapi/document'
 require 'grape/jsonapi/entity'
 require 'grape/jsonapi/formatter'
 

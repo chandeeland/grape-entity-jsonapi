@@ -2,10 +2,6 @@ module Grape
   module Jsonapi
     module Entity
       class Top < ::Grape::Entity
-        expose :data,
-               using: ::Grape::Jsonapi::Entity::Resource,
-               #  parent: self,
-               unless: ->(instance, _options) { instance.errors.present? }
 
         expose :errors,
                using: ::Grape::Jsonapi::Entity::Errors,
