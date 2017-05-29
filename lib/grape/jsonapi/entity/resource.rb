@@ -44,7 +44,7 @@ module Grape
           _expose_included(name, options)
         end
 
-        def self._link_opts(name, options)
+        def self._relationship_options(name, options)
           using_name = name
           using_name = options[:using].name.split('::').last.downcase.pluralize unless options.fetch(:using, nil).nil?
 
@@ -57,7 +57,7 @@ module Grape
         def self._expose_relationships(name, options = {})
           relation = ::Grape::Entity::Exposure.new(name, nesting: true)
           relationships_exposure.nested_exposures << relation
-          _expose_inside(relation, [name, _link_opts(name, options)], nil)
+          _expose_inside(relation, [name, _relationship_options(name, options)], nil)
         end
 
         def self._expose_included(name, options = {})

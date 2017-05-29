@@ -1,5 +1,3 @@
-require 'ostruct'
-
 describe Grape::Jsonapi::Entity::Resource do
   let(:fresh_class) { Class.new(described_class) }
 
@@ -101,11 +99,13 @@ describe Grape::Jsonapi::Entity::Resource do
       subject { fresh_class.represent(data).serializable_hash }
       let(:data) do
         OpenStruct.new(
-          id: 123,
-          color: :red,
-          parent: OpenStruct.new(
-            id: 999,
-            size: 'XXL'
+          data: OpenStruct.new(
+            id: 123,
+            color: :red,
+            parent: OpenStruct.new(
+              id: 999,
+              size: 'XXL'
+            )
           )
         )
       end
