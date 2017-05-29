@@ -22,22 +22,22 @@ describe Grape::Jsonapi::Formatter do
 
     let(:data) do
       fresh_class.represent(OpenStruct.new(
-        id: 111,
-        color: 'blue',
-        parent: OpenStruct.new(
-          id: 222,
-          name: 'tshirt',
-          size: [
-            OpenStruct.new(
-              id: 333,
-              name: 'Small'
-            ),
-            OpenStruct.new(
-              id: 444,
-              name: 'Med'
-            )
-          ]
-        )
+                              id: 111,
+                              color: 'blue',
+                              parent: OpenStruct.new(
+                                id: 222,
+                                name: 'tshirt',
+                                size: [
+                                  OpenStruct.new(
+                                    id: 333,
+                                    name: 'Small'
+                                  ),
+                                  OpenStruct.new(
+                                    id: 444,
+                                    name: 'Med'
+                                  )
+                                ]
+                              )
       ))
     end
 
@@ -63,8 +63,8 @@ describe Grape::Jsonapi::Formatter do
             'relationships' => {
               'size' => {
                 'data' => [
-                  {'id' => 333, 'type' => 'cccs'},
-                  {'id' => 444, 'type' => 'cccs'}
+                  { 'id' => 333, 'type' => 'cccs' },
+                  { 'id' => 444, 'type' => 'cccs' }
                 ]
               }
             }

@@ -2,7 +2,6 @@ module Grape
   module Jsonapi
     module Formatter
       class IncludedRollup
-
         def initialize(object)
           @object = object
           @included = []
@@ -38,12 +37,12 @@ module Grape
         end
 
         def collect_included(data)
-          return data.map{ |x| collect_included(x) } if data.is_a? Array
+          return data.map { |x| collect_included(x) } if data.is_a? Array
           {}.tap do |output|
             data.each_pair do |k, v|
               if k.to_s == 'included'
                 included << collect_included(v.values)
-              elsif (v.respond_to? :each_pair)
+              elsif v.respond_to? :each_pair
                 output[k] = collect_included(v)
               else
                 output[k] = v
@@ -52,7 +51,6 @@ module Grape
           end
         end
       end
-
 
       class << self
         def call(object, _env)
@@ -65,8 +63,6 @@ module Grape
           MultiJson.dump(object)
         end
       end
-
-
     end
   end
 end

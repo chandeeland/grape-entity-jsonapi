@@ -52,9 +52,9 @@ xdescribe Grape::Jsonapi::Entity::Top do
     it 'has correct fields' do
       expect(subject[:id]).to eq 111
       expect(subject[:type]).to eq 'books'
-      expect(subject[:attributes]).to eq({title: 'Alice In Wonderland'})
-      expect(subject[:relationships].keys).to %i(author chapters)
-      expect(subject[:included].keys).to %i(author chapters)
+      expect(subject[:attributes]).to eq(title: 'Alice In Wonderland')
+      expect(subject[:relationships].keys).to %i[author chapters]
+      expect(subject[:included].keys).to %i[author chapters]
     end
   end
 end
