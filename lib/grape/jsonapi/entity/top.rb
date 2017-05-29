@@ -2,7 +2,6 @@ module Grape
   module Jsonapi
     module Entity
       class Top < ::Grape::Entity
-
         expose :errors,
                using: ::Grape::Jsonapi::Entity::Errors,
                if: ->(instance, _options) { instance.errors.present? }

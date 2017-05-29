@@ -1,4 +1,4 @@
-xdescribe Grape::Jsonapi::Entity::Top do
+describe Grape::Jsonapi::Entity::Top do
   context 'when there are :included resources' do
     let(:fresh_class) do
       class Address < Grape::Jsonapi::Entity::Resource
@@ -7,54 +7,19 @@ xdescribe Grape::Jsonapi::Entity::Top do
         expose :state
       end
 
-      class User < Grape::Jsonapi::Entity::Resource
-        expose :name
-        nest :address
+      Class.new(described_class).tap do |klass|
+        klass.expose :data, using: Address
       end
-
-      class Chapter < Grape::Jsonapi::Entity::Resource
-        expose :page
-      end
-
-      class Book < Grape::Jsonapi::Entity::Resource
-        expose :title
-        nest :author, using: User
-        nest :chapters, using: Chapter
-      end
-
-      Book
     end
 
-    let(:data) do
-      OpenStruct.new(
-        id: 111,
-        title: 'Alice In Wonderland',
-        author: OpenStruct.new(
-          id: 222,
-          name: 'Lewis Carroll',
-          address: OpenStruct.new(
-            street: '123 fake st',
-            city: 'springfield',
-            state: 'WY'
-          )
-        ),
-        chapters: [
-          OpenStruct.new(id: 300, page: 3),
-          OpenStruct.new(id: 301, page: 20),
-          OpenStruct.new(id: 302, page: 30),
-          OpenStruct.new(id: 303, page: 50)
-        ]
-      )
-    end
+    subject { fresh_class.root_exposures.map(&:attribute) }
 
-    subject { descri.represent(data).serializable_hash }
-
-    it 'has correct fields' do
-      expect(subject[:id]).to eq 111
-      expect(subject[:type]).to eq 'books'
-      expect(subject[:attributes]).to eq(title: 'Alice In Wonderland')
-      expect(subject[:relationships].keys).to %i[author chapters]
-      expect(subject[:included].keys).to %i[author chapters]
+    it 'has correct root fields' do
+      expect(subject).to include :data
+      expect(subject).to include :errors
+      expect(subject).to include :links
+      expect(subject).to include :meta
+      expect(subject).to include :jsonapi
     end
   end
 end

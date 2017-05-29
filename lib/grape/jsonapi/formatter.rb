@@ -13,29 +13,36 @@ module Grape
         end
 
         def serializable?
-          object.respond_to?(:serializable_hash) || object.is_a?(Array) && object.all? { |o| o.respond_to? :serializable_hash } || object.is_a?(Hash)
+          object.respond_to?(:serializable_hash) ||
+            object.is_a?(Array) &&
+              object.all? { |o| o.respond_to? :serializable_hash } ||
+            object.is_a?(Hash)
         end
 
         private
 
         attr_reader :object, :included
 
-        def serialize
-          if object.respond_to? :serializable_hash
-            object.serializable_hash
-          elsif object.is_a?(Array) && object.all? { |o| o.respond_to? :serializable_hash }
-            object.map(&:serializable_hash)
-          elsif object.is_a?(Hash)
-            h = {}
+        def serialize_hash
+          {}.tap do |h|
             object.each_pair do |k, v|
               h[k] = serialize_included(v)
             end
-            h
-          else
-            object
           end
         end
 
+        # rubocop:disable  Metrics/AbcSize
+        def serialize
+          return object.serializable_hash if object.respond_to? :serializable_hash
+          if object.is_a?(Array) && object.all? { |o| o.respond_to? :serializable_hash }
+            return object.map(&:serializable_hash)
+          end
+          return serialize_hash if object.is_a?(Hash)
+          object
+        end
+        # rubocop:enable  Metrics/AbcSize
+
+        # rubocop:disable  Metrics/MethodLength
         def collect_included(data)
           return data.map { |x| collect_included(x) } if data.is_a? Array
           {}.tap do |output|
@@ -50,6 +57,7 @@ module Grape
             end
           end
         end
+        # rubocop:enable  Metrics/MethodLength
       end
 
       class << self
