@@ -97,18 +97,18 @@ describe Grape::Jsonapi::Entity::Resource do
 
     context '.represent' do
       subject { fresh_class.represent(data).serializable_hash }
+
       let(:data) do
         OpenStruct.new(
-          data: OpenStruct.new(
-            id: 123,
-            color: :red,
-            parent: OpenStruct.new(
-              id: 999,
-              size: 'XXL'
-            )
+          id: 123,
+          color: :red,
+          parent: OpenStruct.new(
+            id: 999,
+            size: 'XXL'
           )
         )
       end
+
       let(:fresh_class) do
         class BBB < described_class
           attribute :size

@@ -3,21 +3,21 @@ describe Grape::Jsonapi::Formatter do
 
   context 'compound-documents' do
     let(:fresh_class) do
-      class CCC < Grape::Jsonapi::Entity::Resource
+      class CCCformat < Grape::Jsonapi::Entity::Resource
         attribute :name
       end
 
-      class BBB < Grape::Jsonapi::Entity::Resource
+      class BBBformat < Grape::Jsonapi::Entity::Resource
         attribute :name
-        nest :size, using: CCC
+        nest :size, using: CCCformat
       end
 
-      class AAA < Grape::Jsonapi::Entity::Resource
+      class AAAformat < Grape::Jsonapi::Entity::Resource
         attribute :color
-        nest :parent, using: BBB
+        nest :parent, using: BBBformat
       end
 
-      AAA
+      AAAformat
     end
 
     let(:data) do
@@ -44,41 +44,41 @@ describe Grape::Jsonapi::Formatter do
     let(:answer) do
       {
         'id' => 111,
-        'type' => 'aaas',
+        'type' => 'aaaformats',
         'attributes' => {
           'color' => 'blue'
         },
         'relationships' => {
           'parent' => {
-            'data' => { 'id' => 222, 'type' => 'bbbs' }
+            'data' => { 'id' => 222, 'type' => 'bbbformats' }
           }
         },
         'included' => [
           {
             'id' => 222,
-            'type' => 'bbbs',
+            'type' => 'bbbformats',
             'attributes' => {
               'name' => 'tshirt'
             },
             'relationships' => {
               'size' => {
                 'data' => [
-                  { 'id' => 333, 'type' => 'cccs' },
-                  { 'id' => 444, 'type' => 'cccs' }
+                  { 'id' => 333, 'type' => 'cccformats' },
+                  { 'id' => 444, 'type' => 'cccformats' }
                 ]
               }
             }
           },
           {
             'id' => 333,
-            'type' => 'cccs',
+            'type' => 'cccformats',
             'attributes' => {
               'name' => 'Small'
             }
           },
           {
             'id' => 444,
-            'type' => 'cccs',
+            'type' => 'cccformats',
             'attributes' => {
               'name' => 'Med'
             }
