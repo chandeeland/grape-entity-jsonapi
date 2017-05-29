@@ -1,25 +1,27 @@
 module Grape
   module Jsonapi
     module Formatter
-      class << self
-        def call(object, _env)
-          return object if object.is_a?(String)
-          return MultiJson.dump(serialize_included(object)) if serializable?(object)
-          return object.to_json if object.respond_to?(:to_json)
-          MultiJson.dump(object)
+      class IncludedRollup
+
+        def initialize(object)
+          @object = object
+          @included = []
+        end
+
+        def serialize_included
+          collect_included(serialize)
+            .merge(included: included.flatten.uniq)
+        end
+
+        def serializable?
+          object.respond_to?(:serializable_hash) || object.is_a?(Array) && object.all? { |o| o.respond_to? :serializable_hash } || object.is_a?(Hash)
         end
 
         private
 
-        def included
-          @included ||= []
-        end
+        attr_reader :object, :included
 
-        def serializable?(object)
-          object.respond_to?(:serializable_hash) || object.is_a?(Array) && object.all? { |o| o.respond_to? :serializable_hash } || object.is_a?(Hash)
-        end
-
-        def serialize(object)
+        def serialize
           if object.respond_to? :serializable_hash
             object.serializable_hash
           elsif object.is_a?(Array) && object.all? { |o| o.respond_to? :serializable_hash }
@@ -49,12 +51,22 @@ module Grape
             end
           end
         end
+      end
 
-        def serialize_included(object)
-          collect_included(serialize(object))
-            .merge(included: included.flatten.uniq)
+
+      class << self
+        def call(object, _env)
+          return object if object.is_a?(String)
+
+          formatter = IncludedRollup.new(object)
+          return MultiJson.dump(formatter.serialize_included) if formatter.serializable?
+
+          return object.to_json if object.respond_to?(:to_json)
+          MultiJson.dump(object)
         end
       end
+
+
     end
   end
 end

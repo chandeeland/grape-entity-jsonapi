@@ -92,7 +92,9 @@ describe Grape::Jsonapi::Formatter do
       expect(subject['type']).to eq(answer['type'])
       expect(subject['attributes']).to eq(answer['attributes'])
       expect(subject['relationships']).to eq(answer['relationships'])
-      expect(subject['included']).to match_array(answer['included'])
+      answer['included'].each do |current|
+        expect(subject['included']).to include(current)
+      end
     end
   end
 end
