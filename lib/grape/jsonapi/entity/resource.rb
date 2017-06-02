@@ -36,7 +36,7 @@ module Grape
 
         # expose a field inside of :attributes stanza
         def self.attribute(*args, &block)
-          _expose_inside(attributes_exposure, args, block)
+          _expose_inside(attributes_exposure, args, &block)
         end
 
         def self.nest(name, options = {})
@@ -57,14 +57,14 @@ module Grape
         def self._expose_relationships(name, options = {})
           relation = ::Grape::Entity::Exposure.new(name, nesting: true)
           relationships_exposure.nested_exposures << relation
-          _expose_inside(relation, [name, _relationship_options(name, options)], nil)
+          _expose_inside(relation, [name, _relationship_options(name, options)])
         end
 
         def self._expose_included(name, options = {})
-          _expose_inside(included_exposure, [name, options], nil)
+          _expose_inside(included_exposure, [name, options])
         end
 
-        def self._expose_inside(new_nesting_stack, args, block)
+        def self._expose_inside(new_nesting_stack, args, &block)
           old_nesting_stack = @nesting_stack
           @nesting_stack = [new_nesting_stack]
           expose(*args) unless block_given?

@@ -34,8 +34,8 @@ describe Grape::Jsonapi::Entity::Resource do
 
       context 'when block is passed' do
         before do
-          fresh_class.attribute(:ddd) do
-            'do nothing'
+          fresh_class.attribute(:ddd) do |_object|
+            nil
           end
         end
 
@@ -94,47 +94,95 @@ describe Grape::Jsonapi::Entity::Resource do
         end
       end
     end
-
     context '.represent' do
       subject { fresh_class.represent(data).serializable_hash }
 
-      let(:data) do
-        OpenStruct.new(
-          id: 123,
-          color: :red,
-          parent: OpenStruct.new(
-            id: 999,
-            size: 'XXL'
+      context 'with a nested object' do
+        let(:fresh_class) do
+          class BBB < described_class
+            attribute :size
+          end
+          class AAA < described_class
+            attribute :color
+            nest :parent, using: BBB
+          end
+          AAA
+        end
+
+        let(:data) do
+          OpenStruct.new(
+            id: 123,
+            color: :red,
+            parent: OpenStruct.new(
+              id: 999,
+              size: 'XXL'
+            )
           )
-        )
+        end
+
+        it 'represents' do
+          expect(subject[:id]).to eql(123)
+          expect(subject[:type]).to eql('aaas')
+          expect(subject[:attributes]).to eq(color: :red)
+          expect(subject[:relationships]).to have_key :parent
+          expect(subject[:relationships][:parent])
+            .to have_key :data
+          expect(subject[:relationships][:parent][:data]).to eq(
+            id: 999,
+            type: 'bbbs'
+          )
+          expect(subject[:included]).to have_key :parent
+          expect(subject[:included][:parent][:id]).to eq 999
+          expect(subject[:included][:parent][:type]).to eq 'bbbs'
+          expect(subject[:included][:parent][:attributes][:size]).to eq 'XXL'
+        end
       end
 
-      let(:fresh_class) do
-        class BBB < described_class
-          attribute :size
-        end
-        class AAA < described_class
-          attribute :color
-          nest :parent, using: BBB
-        end
-        AAA
-      end
+      context 'with a nested [ object ]' do
+        let(:data) do
+          OpenStruct.new(
+            id: 123,
+            color: :red,
+            parents: [
+              OpenStruct.new(
+                id: 999,
+                size: 'XXL',
+                extra: 'garbage'
+              ),
+              OpenStruct.new(
+                id: 888,
+                size: 'XL'
+              )
+            ]
 
-      it 'represents' do
-        expect(subject[:id]).to eql(123)
-        expect(subject[:type]).to eql('aaas')
-        expect(subject[:attributes]).to eq(color: :red)
-        expect(subject[:relationships]).to have_key :parent
-        expect(subject[:relationships][:parent])
-          .to have_key :data
-        expect(subject[:relationships][:parent][:data]).to eq(
-          id: 999,
-          type: 'bbbs'
-        )
-        expect(subject[:included]).to have_key :parent
-        expect(subject[:included][:parent][:id]).to eq 999
-        expect(subject[:included][:parent][:type]).to eq 'bbbs'
-        expect(subject[:included][:parent][:attributes][:size]).to eq 'XXL'
+          )
+        end
+
+        let(:fresh_class) do
+          class GGG < described_class
+            attribute :color
+            attribute :parents do |object|
+              object.parents.map do |p|
+                {
+                  id: p.id,
+                  name: p.size
+                }
+              end
+            end
+          end
+          GGG
+        end
+
+        it 'represents' do
+          expect(subject[:id]).to eql(123)
+          expect(subject[:type]).to eql('gggs')
+          expect(subject[:attributes]).to include(color: :red)
+          expect(subject[:attributes][:parents]).to be_instance_of Array
+          expect(subject[:attributes][:parents].count).to eq 2
+
+          expect(subject[:attributes][:parents].first).to eq(id: 999, name: 'XXL')
+          expect(subject[:attributes][:parents].last).to eq(id: 888, name: 'XL')
+        end
       end
     end
   end
