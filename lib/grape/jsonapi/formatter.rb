@@ -44,15 +44,17 @@ module Grape
 
         # rubocop:disable  Metrics/MethodLength
         def collect_included(data)
-          return data.map { |x| collect_included(x) } if data.is_a? Array
+          return data.map { |x| collect_included(x) }.compact if data.is_a? Array
           {}.tap do |output|
-            data.each_pair do |k, v|
-              if k.to_s == 'included'
-                included << collect_included(v.values)
-              elsif v.respond_to? :each_pair
-                output[k] = collect_included(v)
-              else
-                output[k] = v
+            unless data.nil?
+              data.each_pair do |k, v|
+                if k.to_s == 'included'
+                  included << collect_included(v.values)
+                elsif v.respond_to? :each_pair
+                  output[k] = collect_included(v)
+                else
+                  output[k] = v
+                end
               end
             end
           end
