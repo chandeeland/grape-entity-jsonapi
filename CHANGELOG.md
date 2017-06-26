@@ -2,3 +2,4 @@
 * Initial public release - [@chandeeland] (https://github.com/chandeeland)
 ### 0.3.0 (2017-05-26)
 * Compound Resources - [@chandeeland] (https://github.com/chandeeland)
+* Exposer helper methods added - [@chandeeland] (https://github.com/chandeeland)

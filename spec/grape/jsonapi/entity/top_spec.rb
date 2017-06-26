@@ -12,22 +12,46 @@ describe Grape::Jsonapi::Entity::Top do
   end
 
   context 'represent' do
-    subject { fresh_class.represent(data) }
+    subject { fresh_class.represent(data).serializable_hash }
 
     context 'when there are errors' do
       let(:error) do
-        OpenStruct.new(
+        OpenStruct.new(errorhash)
+      end
+
+      let(:errorhash) do
+        {
           id: 1111,
           status: 'failure',
           code: 400,
           title: 'broken stuff',
           detail: 'broken stuff details'
-        )
+        }
       end
+
       let(:data) { OpenStruct.new(errors: [error]) }
 
-      it 'shows errors, instead of data' do
-        binding.pry
+      let(:result) do
+        {
+          :errors=>[
+            {:id=>1111, :status=>0, :code=>400, :title=>"broken stuff", :detail=>"broken stuff"}
+          ],
+          :jsonapi=>{:version=>"1.0"},
+          :data=>nil
+        }
+      end
+
+      context 'when representing an object ' do
+        it 'shows errors, instead of data' do
+          expect(subject).to eql (result)
+        end
+      end
+
+      context 'when representing a hash' do
+        let(:error) { errorhash }
+        it 'shows errors, instead of data' do
+          expect(subject).to eql (result)
+        end
       end
     end
   end

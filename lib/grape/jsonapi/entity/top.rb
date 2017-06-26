@@ -4,10 +4,10 @@ module Grape
       class Top < ::Grape::Entity
         expose :errors,
                using: ::Grape::Jsonapi::Entity::Errors,
-               if: ->(instance, _options) { instance.respond_to? :errors }
+               if: Jsonapi::Exposer.field_exists?(:errors)
 
         # meta may display any hash
-        expose :meta, if: ->(instance, _options) { instance.respond_to? :meta }
+        expose :meta, if: Jsonapi::Exposer.field_exists?(:meta)
 
         # A JSON API document MAY include information about its implementation under a top level jsonapi member.
         # If present, the value of the jsonapi member MUST be an object (a jsonapi object).
@@ -19,7 +19,9 @@ module Grape
           expose :json_api_version, as: :version
         end
 
-        expose :links, using: Grape::Jsonapi::Entity::Links
+        expose :links,
+          using: Grape::Jsonapi::Entity::Links,
+          if: Jsonapi::Exposer.field_exists?(:links)
 
         # @TODO implement compound-documents
         # expose :included
