@@ -6,7 +6,7 @@ module Grape
 
         expose :id, if: Jsonapi::Exposer.field_exists?(:id)
 
-        expose :links, if: ->(instance, _options) { (instance.respond_to? :links ) && (instance.links.is_a? Array) && (instance.links.count > 0) } do
+        expose :links, if: Jsonapi::Exposer.non_empty_array?(:links) do
           # a link that leads to further details about this particular occurrence of the problem.
           expose :about
         end

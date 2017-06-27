@@ -20,8 +20,8 @@ module Grape
         end
 
         expose :links,
-          using: Grape::Jsonapi::Entity::Links,
-          if: Jsonapi::Exposer.field_exists?(:links)
+               using: Grape::Jsonapi::Entity::Links,
+               if: Jsonapi::Exposer.field_exists?(:links)
 
         # @TODO implement compound-documents
         # expose :included
