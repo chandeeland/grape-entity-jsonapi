@@ -22,6 +22,8 @@ module Grape
 
         def type
           object.try(:type) ||
+            (object.is_a? Hash) && object.fetch(:type, nil) ||
+            (object.is_a? Hash) && object.fetch('type', nil) ||
             self.class.type_plural ||
             self.class.name.split('::').last.downcase.pluralize
         end

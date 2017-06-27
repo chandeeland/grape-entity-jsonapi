@@ -55,12 +55,16 @@ module Grape
         end
 
         def self._expose_relationships(name, options = {})
-          relation = ::Grape::Entity::Exposure.new(name, nesting: true)
+          relation = ::Grape::Entity::Exposure.new(name, {
+            nesting: true,
+            if: Jsonapi::Exposer.field_exists?(name.to_sym)
+          })
           relationships_exposure.nested_exposures << relation
           _expose_inside(relation, [name, _relationship_options(name, options)])
         end
 
         def self._expose_included(name, options = {})
+          options.merge!(if: Jsonapi::Exposer.field_exists?(name.to_sym))
           _expose_inside(included_exposure, [name, options])
         end
 

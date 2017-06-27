@@ -109,54 +109,57 @@ describe Grape::Jsonapi::Entity::Resource do
           AAA
         end
 
-        let(:data) do
-          OpenStruct.new(
-            id: 123,
-            color: :red,
-            parent: OpenStruct.new(
-              id: 999,
-              size: 'XXL'
+        context 'nested object is present' do
+          let(:data) do
+            OpenStruct.new(
+              id: 123,
+              color: :red,
+              parent: OpenStruct.new(
+                id: 999,
+                size: 'XXL'
+              )
             )
-          )
+          end
+
+          it 'represents' do
+            expect(subject[:id]).to eql(123)
+            expect(subject[:type]).to eql('aaas')
+            expect(subject[:attributes]).to eq(color: :red)
+            expect(subject[:relationships]).to have_key :parent
+            expect(subject[:relationships][:parent])
+              .to have_key :data
+            expect(subject[:relationships][:parent][:data]).to eq(
+              id: 999,
+              type: 'bbbs'
+            )
+            expect(subject[:included]).to have_key :parent
+            expect(subject[:included][:parent][:id]).to eq 999
+            expect(subject[:included][:parent][:type]).to eq 'bbbs'
+            expect(subject[:included][:parent][:attributes][:size]).to eq 'XXL'
+          end
         end
 
-        it 'represents' do
-          expect(subject[:id]).to eql(123)
-          expect(subject[:type]).to eql('aaas')
-          expect(subject[:attributes]).to eq(color: :red)
-          expect(subject[:relationships]).to have_key :parent
-          expect(subject[:relationships][:parent])
-            .to have_key :data
-          expect(subject[:relationships][:parent][:data]).to eq(
-            id: 999,
-            type: 'bbbs'
-          )
-          expect(subject[:included]).to have_key :parent
-          expect(subject[:included][:parent][:id]).to eq 999
-          expect(subject[:included][:parent][:type]).to eq 'bbbs'
-          expect(subject[:included][:parent][:attributes][:size]).to eq 'XXL'
+        context 'nested object is missing' do
+          let(:data) do
+            OpenStruct.new(
+              id: 123,
+              color: :red,
+              parent: nil
+            )
+          end
+
+          it 'represents' do
+            expect(subject[:id]).to eql(123)
+            expect(subject[:type]).to eql('aaas')
+            expect(subject[:attributes]).to eq(color: :red)
+            expect(subject[:relationships]).not_to have_key :parent
+
+            expect(subject[:included]).not_to have_key :parent
+          end
         end
       end
 
       context 'with a nested [ object ]' do
-        let(:data) do
-          OpenStruct.new(
-            id: 123,
-            color: :red,
-            parents: [
-              OpenStruct.new(
-                id: 999,
-                size: 'XXL',
-                extra: 'garbage'
-              ),
-              OpenStruct.new(
-                id: 888,
-                size: 'XL'
-              )
-            ]
-
-          )
-        end
 
         let(:fresh_class) do
           class GGG < described_class
@@ -173,15 +176,54 @@ describe Grape::Jsonapi::Entity::Resource do
           GGG
         end
 
-        it 'represents' do
-          expect(subject[:id]).to eql(123)
-          expect(subject[:type]).to eql('gggs')
-          expect(subject[:attributes]).to include(color: :red)
-          expect(subject[:attributes][:parents]).to be_instance_of Array
-          expect(subject[:attributes][:parents].count).to eq 2
+        context 'when the data is present' do
+          let(:data) do
+            OpenStruct.new(
+              id: 123,
+              color: :red,
+              parents: [
+                OpenStruct.new(
+                  id: 999,
+                  size: 'XXL',
+                  extra: 'garbage'
+                ),
+                OpenStruct.new(
+                  id: 888,
+                  size: 'XL'
+                )
+              ]
 
-          expect(subject[:attributes][:parents].first).to eq(id: 999, name: 'XXL')
-          expect(subject[:attributes][:parents].last).to eq(id: 888, name: 'XL')
+            )
+          end
+
+          it 'represents' do
+            expect(subject[:id]).to eql(123)
+            expect(subject[:type]).to eql('gggs')
+            expect(subject[:attributes]).to include(color: :red)
+            expect(subject[:attributes][:parents]).to be_instance_of Array
+            expect(subject[:attributes][:parents].count).to eq 2
+
+            expect(subject[:attributes][:parents].first).to eq(id: 999, name: 'XXL')
+            expect(subject[:attributes][:parents].last).to eq(id: 888, name: 'XL')
+          end
+        end
+
+        context 'when the data is []' do
+          let(:data) do
+            OpenStruct.new(
+              id: 123,
+              color: :red,
+              parents: []
+            )
+          end
+
+          it 'represents' do
+            expect(subject[:id]).to eql(123)
+            expect(subject[:type]).to eql('gggs')
+            expect(subject[:attributes]).to include(color: :red)
+            expect(subject[:attributes][:parents]).to be_instance_of Array
+            expect(subject[:attributes][:parents].count).to eq 0
+          end
         end
       end
     end
