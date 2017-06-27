@@ -1,7 +1,11 @@
+class Grape::Json
+end
+
 describe Grape::Jsonapi::Formatter do
   subject { JSON.parse(described_class.call(data, {})) }
 
   context 'compound-documents' do
+
     let(:fresh_class) do
       class CCCformat < Grape::Jsonapi::Entity::Resource
         attribute :name
@@ -85,6 +89,10 @@ describe Grape::Jsonapi::Formatter do
           }
         ]
       }
+    end
+
+    before do
+      allow(::Grape::Json).to receive(:dump).and_return(data)
     end
 
     it 'collects :included relations' do

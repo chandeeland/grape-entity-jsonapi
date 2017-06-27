@@ -5,7 +5,7 @@ module Grape
         Class.new(Grape::Jsonapi::Entity::Top).tap do |klass|
           klass.expose :data,
                        using: resource,
-                       unless: ->(instance, _options) { instance.respond_to? :errors }
+                       unless: Jsonapi::Exposer.field_exists?(:errors)
         end
       end
     end
