@@ -73,7 +73,7 @@ module Grape
       class << self
         def call(object, _env)
           return object if object.is_a?(String)
-          formatter = IncludedRollup.new(::Grape::Json.dump(object))
+          formatter = IncludedRollup.new(object)
           return MultiJson.dump(formatter.serialize_included) if formatter.serializable?
 
           return object.to_json if object.respond_to?(:to_json)

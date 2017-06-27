@@ -21,7 +21,7 @@ module Grape
         private
 
         def type
-          (Delegator.new object).delegate(:type) ||
+          object.try(:type) ||
             self.class.type_plural ||
             self.class.name.split('::').last.downcase.pluralize
         end

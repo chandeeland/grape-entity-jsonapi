@@ -92,10 +92,6 @@ describe Grape::Jsonapi::Formatter do
       }
     end
 
-    before do
-      allow(::Grape::Json).to receive(:dump).and_return(data)
-    end
-
     it 'collects :included relations' do
       expect(subject['id']).to eq(answer['id'])
       expect(subject['type']).to eq(answer['type'])
