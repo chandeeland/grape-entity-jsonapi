@@ -43,7 +43,6 @@ module Grape
               else
                 query.where(key => data)
               end
-              query
             end
           end
         end

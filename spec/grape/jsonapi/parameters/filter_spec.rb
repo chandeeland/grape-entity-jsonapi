@@ -10,7 +10,7 @@ describe Grape::Jsonapi::Parameters::Filter do
     end
   end
 
-  context '.parse' do
+  context '#parse' do
     subject { described_class.allow(valid_keys).parse(json) }
 
     context 'when json is invalid' do
@@ -64,6 +64,30 @@ describe Grape::Jsonapi::Parameters::Filter do
           )
         end
       end
+    end
+  end
+
+  context '.query_for' do
+    subject do
+      described_class
+        .allow(valid_keys)
+        .parse(json)
+        .query_for(model)
+    end
+
+    let(:json) { JSON.unparse(aaa: 123, bbb: [2, 3, 4]) }
+    let(:model) { double(:model) }
+
+    before do
+      allow(model).to receive(:all).and_return(model)
+      allow(model).to receive(:where).and_return(model)
+      allow(model).to receive(:in).and_return(model)
+    end
+
+    it 'throws a json exception' do
+      expect(subject).to eq model
+      expect(model).to have_received(:where).with(aaa: 123)
+      expect(model).to have_received(:in).with(bbb: [2, 3, 4])
     end
   end
 end
