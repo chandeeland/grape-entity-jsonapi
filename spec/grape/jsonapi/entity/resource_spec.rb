@@ -160,7 +160,6 @@ describe Grape::Jsonapi::Entity::Resource do
       end
 
       context 'with a nested [ object ]' do
-
         let(:fresh_class) do
           class GGG < described_class
             attribute :color
