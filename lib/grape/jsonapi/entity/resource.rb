@@ -7,8 +7,8 @@ module Grape
         class << self
           def attributes_exposure
             @attributes_exposure ||= begin
-              ::Grape::Entity::Exposure.new(:attributes, nesting: true).tap do |attributes|
-                root_exposure.nested_exposures << attributes
+              ::Grape::Entity::Exposure.new(:attributes, nesting: true).tap do |attribute|
+                root_exposure.nested_exposures << attribute
               end
             end
           end
@@ -23,8 +23,8 @@ module Grape
 
           def included_exposure
             @included_exposure ||= begin
-              ::Grape::Entity::Exposure.new(:included, nesting: true).tap do |include|
-                root_exposure.nested_exposures << include
+              ::Grape::Entity::Exposure.new(:included, nesting: true).tap do |inclusion|
+                root_exposure.nested_exposures << inclusion
               end
             end
           end
