@@ -26,7 +26,7 @@ module Grape
             (object.is_a? Hash) && object.fetch(:type, nil) ||
             (object.is_a? Hash) && object.fetch('type', nil) ||
             self.class.type_plural ||
-            self.class.name.split('::').last.downcase.pluralize
+            self.class.name.split('::').last.underscore.pluralize
         end
         # rubocop:enable Metrics/AbcSize, Metrics/CyclomaticComplexity
       end
