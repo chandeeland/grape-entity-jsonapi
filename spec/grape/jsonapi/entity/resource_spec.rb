@@ -207,6 +207,40 @@ describe Grape::Jsonapi::Entity::Resource do
           end
         end
 
+        context 'nested object id needs to be formatted' do
+          let(:fresh_class) do
+            class BBB < described_class
+              attribute :id do |entity, _options|
+                entity["id"]["to_s"] if entity["id"]
+              end
+            end
+            class AAA < described_class
+              attribute :color
+              nest :parent, using: BBB
+            end
+            AAA
+          end
+
+          let(:data) do
+            OpenStruct.new(
+              id: 123,
+              color: :red,
+              parent: OpenStruct.new(
+                id: {"to_s" => 999},
+                size: 'XXL'
+              )
+            )
+          end
+
+          it 'represents relationships and inclusions correctly' do
+            expect(subject[:relationships][:parent][:data]).to eq(
+              id: 999,
+              type: 'bbbs'
+            )
+            expect(subject[:included][:parent][:id]).to eq 999
+          end
+        end
+
         context 'when the data is []' do
           let(:data) do
             OpenStruct.new(

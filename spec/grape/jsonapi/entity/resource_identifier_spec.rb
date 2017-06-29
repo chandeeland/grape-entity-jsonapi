@@ -79,7 +79,7 @@ describe Grape::Jsonapi::Entity::ResourceIdentifier do
       end
 
       context 'when then entity class is multi worded' do
-        let (:fresh_class) {HorseDog}
+        let (:fresh_class) { HorseDog }
         let(:data) do
           { id: 123 }
         end
