@@ -60,7 +60,8 @@ module Grape
                           nesting: true,
                           if: Jsonapi::Exposer.field_exists?(name.to_sym))
           relationships_exposure.nested_exposures << relation
-          _expose_inside(relation, [name, _relationship_options(name, options)])
+          opts = options.merge(if: Jsonapi::Exposer.field_exists?(name.to_sym))
+          _expose_inside(relation, [name, _relationship_options(name, opts)])
         end
 
         def self._expose_included(name, options = {})

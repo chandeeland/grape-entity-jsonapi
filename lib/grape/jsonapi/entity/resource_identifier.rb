@@ -12,7 +12,9 @@ module Grape
         end
 
         expose :type
-        expose :id
+        expose :id do |instance, _options|
+          self.try(:id) ? self.id : instance.id
+        end
 
         expose :meta, if: lambda { |instance, _options|
           (instance.respond_to? :meta) && (instance.meta.keys.count > 0)
@@ -25,8 +27,9 @@ module Grape
           object.try(:type) ||
             (object.is_a? Hash) && object.fetch(:type, nil) ||
             (object.is_a? Hash) && object.fetch('type', nil) ||
+            self.try(:child).try(:type_plural) ||
             self.class.type_plural ||
-            self.class.name.split('::').last.underscore.pluralize
+            (self.class.try(:name) || 'no_type').split('::').last.underscore.pluralize
         end
         # rubocop:enable Metrics/AbcSize, Metrics/CyclomaticComplexity
       end
