@@ -16,8 +16,8 @@ module Grape
         expose :id do |instance, _options|
           exposed_id = self.try(:id) || instance.try(:id) || id_exposer
 
-          if self.class.try(:formatter) && self.class.try(:formatter).has_key?(:id_formatter)
-            exposed_id = self.class.formatter[:id_formatter].call(object.send(:id))
+          if self.class.try(:formatter) && self.class.try(:formatter).has_key?(:relationship_id_formatter)
+            exposed_id = self.class.formatter[:relationship_id_formatter].call(object.send(:id))
           end
 
           exposed_id
@@ -30,7 +30,6 @@ module Grape
         private
 
         # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity
-
         def id_exposer
           (object.is_a? Hash) && object.fetch(:id, nil) ||
           (object.is_a? Hash) && object.fetch('id', nil)
