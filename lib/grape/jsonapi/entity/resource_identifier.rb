@@ -36,7 +36,7 @@ module Grape
         end
 
         def type
-          object.try(:type)
+          object.try(:type) ||
             (object.is_a? Hash) && object.fetch(:type, nil) ||
             (object.is_a? Hash) && object.fetch('type', nil) ||
             self.class.type_plural ||
