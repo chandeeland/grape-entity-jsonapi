@@ -6,6 +6,9 @@ describe Grape::Jsonapi::Entity::ResourceIdentifier do
   end
 
   class HorseDog < described_class
+    def type
+      self.class.name.split('::').last.underscore.pluralize
+    end
   end
 
   context '#type' do

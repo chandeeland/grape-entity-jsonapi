@@ -36,11 +36,11 @@ module Grape
         end
 
         def type
-          object.try(:type) ||
+          object.try(:type)
             (object.is_a? Hash) && object.fetch(:type, nil) ||
             (object.is_a? Hash) && object.fetch('type', nil) ||
             self.class.type_plural ||
-            (self.class.try(:name) || 'no_type').split('::').last.underscore.pluralize
+            self.class.name.split('::').last.downcase.pluralize
         end
         # rubocop:enable Metrics/AbcSize, Metrics/CyclomaticComplexity
       end
