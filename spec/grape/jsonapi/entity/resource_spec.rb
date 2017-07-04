@@ -211,6 +211,8 @@ describe Grape::Jsonapi::Entity::Resource do
           let(:bson_object) { double(:bson_object) }
           let(:fresh_class) do
             class BBB < described_class
+              format_with(:id_formatter) { |id| id.to_s }
+
               def id
                 object.id.to_s if object.id
               end
