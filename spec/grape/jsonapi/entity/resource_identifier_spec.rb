@@ -5,6 +5,12 @@ describe Grape::Jsonapi::Entity::ResourceIdentifier do
   class Mouse < described_class
   end
 
+  class HorseDog < described_class
+    def type
+      self.class.name.split('::').last.underscore.pluralize
+    end
+  end
+
   context '#type' do
     let(:plural) { 'cats' }
     let(:single) { 'cat' }
@@ -72,6 +78,17 @@ describe Grape::Jsonapi::Entity::ResourceIdentifier do
 
         it 'uses the entity class name' do
           expect(subject).to include(type: 'mice')
+        end
+      end
+
+      context 'when then entity class is multi worded' do
+        let (:fresh_class) { HorseDog }
+        let(:data) do
+          { id: 123 }
+        end
+
+        it 'uses the entity class name underscored' do
+          expect(subject).to include(type: 'horse_dogs')
         end
       end
     end

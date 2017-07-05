@@ -207,6 +207,46 @@ describe Grape::Jsonapi::Entity::Resource do
           end
         end
 
+        context 'id is a BSON object that needs to be formatted to string' do
+          let(:bson_object) { double(:bson_object) }
+          let(:fresh_class) do
+            class BBB < described_class
+              format_with(:relationship_id_formatter) { |relationship_id| relationship_id.to_s }
+
+              def id
+                object.id.to_s if object.id
+              end
+
+              attribute :size
+            end
+            class AAA < described_class
+              attribute :color
+              nest :parent, using: BBB
+            end
+            AAA
+          end
+
+          let(:data) do
+            OpenStruct.new(
+              id: 123,
+              color: :red,
+              parent: OpenStruct.new(
+                id: bson_object,
+                size: 'XXL',
+              )
+            )
+          end
+
+          it 'represents relationships and inclusions correctly' do
+            expect(subject[:included][:parent][:attributes][:size]).to eq 'XXL'
+            expect(subject[:included][:parent][:id]).to be_a String
+            expect(subject[:relationships][:parent][:data]).to eq(
+              id: bson_object.to_s,
+              type: 'bbbs'
+            )
+          end
+        end
+
         context 'when the data is []' do
           let(:data) do
             OpenStruct.new(

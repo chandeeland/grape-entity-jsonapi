@@ -7,8 +7,8 @@ module Grape
         class << self
           def attributes_exposure
             @attributes_exposure ||= begin
-              ::Grape::Entity::Exposure.new(:attributes, nesting: true).tap do |attributes|
-                root_exposure.nested_exposures << attributes
+              ::Grape::Entity::Exposure.new(:attributes, nesting: true).tap do |attribute|
+                root_exposure.nested_exposures << attribute
               end
             end
           end
@@ -23,8 +23,8 @@ module Grape
 
           def included_exposure
             @included_exposure ||= begin
-              ::Grape::Entity::Exposure.new(:included, nesting: true).tap do |include|
-                root_exposure.nested_exposures << include
+              ::Grape::Entity::Exposure.new(:included, nesting: true).tap do |inclusion|
+                root_exposure.nested_exposures << inclusion
               end
             end
           end
@@ -50,7 +50,12 @@ module Grape
 
           options.merge(
             as: 'data',
-            using: Class.new(Grape::Jsonapi::Entity::ResourceIdentifier).tap { |klass| klass.root(using_name) }
+            using: Class.new(Grape::Jsonapi::Entity::ResourceIdentifier).tap { |klass| 
+              klass.root(using_name)
+              if options[:using] && options[:using].respond_to?(:formatters)
+                klass.formatter = options[:using].formatters
+              end
+            }
           )
         end
 
@@ -60,7 +65,8 @@ module Grape
                           nesting: true,
                           if: Jsonapi::Exposer.field_exists?(name.to_sym))
           relationships_exposure.nested_exposures << relation
-          _expose_inside(relation, [name, _relationship_options(name, options)])
+          opts = options.merge(if: Jsonapi::Exposer.field_exists?(name.to_sym))
+          _expose_inside(relation, [name, _relationship_options(name, opts)])
         end
 
         def self._expose_included(name, options = {})
