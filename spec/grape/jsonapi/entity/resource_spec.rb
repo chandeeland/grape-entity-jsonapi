@@ -208,7 +208,10 @@ describe Grape::Jsonapi::Entity::Resource do
         end
 
         context 'id is a BSON object that needs to be formatted to string' do
-          let(:bson_object) { double(:bson_object) }
+          let(:bson_object) { double(:bson_object).tap do |o|
+              expect(o).to receive("to_s").at_least(:once).and_return('id_string') 
+            end 
+          }
           let(:fresh_class) do
             class BBB < described_class
               format_with(:relationship_id_formatter) { |relationship_id| relationship_id.to_s }
@@ -241,7 +244,7 @@ describe Grape::Jsonapi::Entity::Resource do
             expect(subject[:included][:parent][:attributes][:size]).to eq 'XXL'
             expect(subject[:included][:parent][:id]).to be_a String
             expect(subject[:relationships][:parent][:data]).to eq(
-              id: bson_object.to_s,
+              id: "id_string",
               type: 'bbbs'
             )
           end
