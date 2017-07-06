@@ -16,6 +16,7 @@ Gem::Specification.new do |s|
   s.license       = 'MIT'
 
   s.add_runtime_dependency 'grape-entity', '~> 0.6', '>=0.6.0'
+  s.add_runtime_dependency 'bson'
 
   s.add_development_dependency 'bundler', '~> 1.14'
   s.add_development_dependency 'rake', ' ~> 12.0'

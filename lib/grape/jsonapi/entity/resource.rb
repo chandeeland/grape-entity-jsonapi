@@ -52,9 +52,6 @@ module Grape
             as: 'data',
             using: Class.new(Grape::Jsonapi::Entity::ResourceIdentifier).tap { |klass| 
               klass.root(using_name)
-              if options[:using] && options[:using].respond_to?(:formatters)
-                klass.formatter = options[:using].formatters
-              end
             }
           )
         end
