@@ -214,13 +214,15 @@ describe Grape::Jsonapi::Entity::Resource do
             end 
           }
           let(:fresh_class) do
-            class BBB < described_class
-
+            class HorseDog < described_class
+              def self.type
+                'horse_dogs'
+              end
               attribute :size
             end
             class AAA < described_class
               attribute :color
-              nest :parent, using: BBB
+              nest :parent, using: HorseDog
             end
             AAA
           end
@@ -241,7 +243,7 @@ describe Grape::Jsonapi::Entity::Resource do
             expect(subject[:included][:parent][:id]).to be_a String
             expect(subject[:relationships][:parent][:data]).to eq(
               id: "id_string",
-              type: 'bbbs'
+              type: 'horse_dogs'
             )
           end
         end
