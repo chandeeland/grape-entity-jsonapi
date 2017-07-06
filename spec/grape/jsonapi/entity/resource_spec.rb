@@ -6,7 +6,7 @@ describe Grape::Jsonapi::Entity::Resource do
   context '#fields' do
     subject { fresh_class.root_exposures.map(&:attribute) }
     it 'has correct fields' do
-      expect(subject).to eq %i[type id meta]
+      expect(subject).to eq %i[id type meta]
     end
   end
 
@@ -208,20 +208,21 @@ describe Grape::Jsonapi::Entity::Resource do
         end
 
         context 'id is a BSON object that needs to be formatted to string' do
-          let(:bson_object) { double(:bson_object) }
+          let(:bson_object) { double(:bson_object).tap do |o|
+              expect(o).to receive(:class).at_least(:once).and_return(::BSON::ObjectId)
+              expect(o).to receive(:to_s).at_least(:once).and_return('id_string')
+            end 
+          }
           let(:fresh_class) do
-            class BBB < described_class
-              format_with(:relationship_id_formatter) { |relationship_id| relationship_id.to_s }
-
-              def id
-                object.id.to_s if object.id
+            class HorseDog < described_class
+              def self.type
+                'horse_dogs'
               end
-
               attribute :size
             end
             class AAA < described_class
               attribute :color
-              nest :parent, using: BBB
+              nest :parent, using: HorseDog
             end
             AAA
           end
@@ -241,8 +242,8 @@ describe Grape::Jsonapi::Entity::Resource do
             expect(subject[:included][:parent][:attributes][:size]).to eq 'XXL'
             expect(subject[:included][:parent][:id]).to be_a String
             expect(subject[:relationships][:parent][:data]).to eq(
-              id: bson_object.to_s,
-              type: 'bbbs'
+              id: "id_string",
+              type: 'horse_dogs'
             )
           end
         end
