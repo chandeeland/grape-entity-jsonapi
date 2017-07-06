@@ -47,6 +47,7 @@ module Grape
         def self._relationship_options(name, options)
           using_name = name
           using_name = options[:using].name.split('::').last.downcase.pluralize unless options.fetch(:using, nil).nil?
+          using_name = options[:using].type if options.fetch(:using, nil)&.respond_to?(:type)
 
           options.merge(
             as: 'data',
