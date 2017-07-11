@@ -1,9 +1,9 @@
-require 'grape/jsonapi/base_entity'
+require 'bson'
 
 module Grape
   module Jsonapi
     module Entity
-      class ResourceIdentifier < BaseEntity
+      class ResourceIdentifier < Grape::Entity
         class << self
           attr_reader :type_plural
         end
@@ -13,11 +13,14 @@ module Grape
           super(plural, singular) if for_real
         end
 
+        expose :id, :format_with => :to_string
         expose :type
 
         expose :meta, if: lambda { |instance, _options|
           (instance.respond_to? :meta) && (instance.meta.keys.count > 0)
         }
+
+        format_with(:to_string) { |foo| foo.class == ::BSON::ObjectId ? foo.to_s : foo }
 
         private
 
