@@ -8,8 +8,7 @@ module Grape
         end
 
         def serialize_included
-          collect_included(object)
-            .merge(included: included.flatten.uniq)
+          {data: collect_included(object)}.merge(included: included.flatten.uniq)
         end
 
         def serializable?
@@ -51,15 +50,15 @@ module Grape
 
         # rubocop:disable  Metrics/MethodLength
         def collect_included(data)
-          return data.map { |x| collect_included(x) }.compact if data.is_a? Array
+          return data[:data].map { |x| collect_included(x) }.compact if data[:data].is_a? Array
 
           {}.tap do |output|
             unless data.nil?
               data.each_pair do |k, v|
                 if k.to_s == 'included'
-                  @included << collect_included(v.values)
+                  included << collect_included({data: v.values.flatten(1)})
                 elsif v.respond_to? :each_pair
-                  output[k] = collect_included(v)
+                  output[k] = v.has_key?(:data) ? v : collect_included(v)
                 else
                   output[k] = v
                 end

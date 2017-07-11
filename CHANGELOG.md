@@ -4,3 +4,5 @@
 * Compound Resources - [@chandeeland] (https://github.com/chandeeland)
 * Exposer helper methods added - [@chandeeland] (https://github.com/chandeeland)
 * Relation_Identifier respect type, id Formatter - [@aperezmontan] (https://github.com/aperezmontan)
+### 0.4.0 (2017-07-09)
+* Formatter change to properly handle an Array of objects - [@aperezmontan] (https://github.com/aperezmontan)

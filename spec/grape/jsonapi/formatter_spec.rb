@@ -48,15 +48,18 @@ describe Grape::Jsonapi::Formatter do
 
     let(:answer) do
       {
-        'id' => 111,
-        'type' => 'aaaformats',
-        'attributes' => {
-          'color' => 'blue'
-        },
-        'relationships' => {
-          'parent' => {
-            'data' => { 'id' => 222, 'type' => 'bbbformats' }
-          }
+        "data" => 
+        {
+          'id' => 111,
+          'type' => 'aaaformats',
+          'attributes' => {
+            'color' => 'blue'
+          },
+          'relationships' => {
+            'parent' => {
+              'data' => { 'id' => 222, 'type' => 'bbbformats' }
+            }
+          },
         },
         'included' => [
           {
@@ -93,10 +96,10 @@ describe Grape::Jsonapi::Formatter do
     end
 
     it 'collects :included relations' do
-      expect(subject['id']).to eq(answer['id'])
-      expect(subject['type']).to eq(answer['type'])
-      expect(subject['attributes']).to eq(answer['attributes'])
-      expect(subject['relationships']).to eq(answer['relationships'])
+      expect(subject["data"]['id']).to eq(answer["data"]['id'])
+      expect(subject["data"]['type']).to eq(answer["data"]['type'])
+      expect(subject["data"]['attributes']).to eq(answer["data"]['attributes'])
+      expect(subject["data"]['relationships']).to eq(answer["data"]['relationships'])
       answer['included'].each do |current|
         expect(subject['included']).to include(current)
       end
