@@ -1,4 +1,4 @@
-# grape-jsonapi_entity
+# grape-jsonapi
 
 Adds [Jsonapi v1.0](http://jsonapi.org/) sugar on [Grape-Entity](https://github.com/ruby-grape/grape-entity).
 
@@ -7,12 +7,12 @@ Adds [Jsonapi v1.0](http://jsonapi.org/) sugar on [Grape-Entity](https://github.
 
 ## Installation
 
-Add the `grape`, `grape-entity` and `grape-jsonapi_entity` gems to Gemfile.
+Add the `grape`, `grape-entity` and `grape-jsonapi` gems to Gemfile.
 
 ```ruby
 gem 'grape'
 gem 'grape-entity'
-gem 'grape-jsonapi_entity'
+gem 'grape-jsonapi'
 ```
 
 Run `bundle install`.
