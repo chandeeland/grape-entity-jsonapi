@@ -13,7 +13,7 @@ module Grape
           super(plural, singular) if for_real
         end
 
-        expose :id, :format_with => :to_string
+        expose :id, format_with: :to_string
         expose :type
 
         expose :meta, if: lambda { |instance, _options|

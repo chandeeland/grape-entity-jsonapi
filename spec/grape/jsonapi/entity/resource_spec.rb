@@ -208,11 +208,12 @@ describe Grape::Jsonapi::Entity::Resource do
         end
 
         context 'id is a BSON object that needs to be formatted to string' do
-          let(:bson_object) { double(:bson_object).tap do |o|
+          let(:bson_object) do
+            double(:bson_object).tap do |o|
               expect(o).to receive(:class).at_least(:once).and_return(::BSON::ObjectId)
               expect(o).to receive(:to_s).at_least(:once).and_return('id_string')
-            end 
-          }
+            end
+          end
           let(:fresh_class) do
             class ManCat < described_class
               def self.type
@@ -233,7 +234,7 @@ describe Grape::Jsonapi::Entity::Resource do
               color: :red,
               parent: OpenStruct.new(
                 id: bson_object,
-                size: 'XXL',
+                size: 'XXL'
               )
             )
           end
@@ -242,7 +243,7 @@ describe Grape::Jsonapi::Entity::Resource do
             expect(subject[:included][:parent][:attributes][:size]).to eq 'XXL'
             expect(subject[:included][:parent][:id]).to be_a String
             expect(subject[:relationships][:parent][:data]).to eq(
-              id: "id_string",
+              id: 'id_string',
               type: 'man_cats'
             )
           end

@@ -29,7 +29,7 @@ module Grape
         end
 
         def process_resource_object(object)
-          return object.map {|x| process_resource_object(x) } if object.is_a? Array
+          return object.map { |x| process_resource_object(x) } if object.is_a? Array
 
           if object.key? :included
             object.delete(:included).values.map do |included_resource|
@@ -38,7 +38,6 @@ module Grape
           end
           object
         end
-
       end
 
       class << self
