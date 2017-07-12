@@ -22,86 +22,184 @@ describe Grape::Jsonapi::Formatter do
         nest :parent, using: BBBformat
       end
 
-      AAAformat
+      Grape::Jsonapi::Document.top(AAAformat)
     end
 
-    let(:data) do
-      fresh_class.represent(OpenStruct.new(
-                              id: 111,
-                              color: 'blue',
-                              parent: OpenStruct.new(
-                                id: 222,
-                                name: 'tshirt',
-                                size: [
-                                  OpenStruct.new(
-                                    id: 333,
-                                    name: 'Small'
-                                  ),
-                                  OpenStruct.new(
-                                    id: 444,
-                                    name: 'Med'
-                                  )
-                                ]
-                              )
-      ))
-    end
+    context 'when data is not an array' do
+      let(:data) do
+        fresh_class.represent(data: OpenStruct.new(
+                                id: 111,
+                                color: 'blue',
+                                parent: OpenStruct.new(
+                                  id: 222,
+                                  name: 'tshirt',
+                                  size: [
+                                    OpenStruct.new(
+                                      id: 333,
+                                      name: 'Small'
+                                    ),
+                                    OpenStruct.new(
+                                      id: 444,
+                                      name: 'Med'
+                                    )
+                                  ]
+                                )
+        ))
+      end
 
-    let(:answer) do
-      {
-        "data" => 
+      let(:answer) do
         {
-          'id' => 111,
-          'type' => 'aaaformats',
-          'attributes' => {
-            'color' => 'blue'
-          },
-          'relationships' => {
-            'parent' => {
-              'data' => { 'id' => 222, 'type' => 'bbbformats' }
-            }
-          },
-        },
-        'included' => [
+          "jsonapi" => { 'version' => '1.0'},
+          "data" =>
           {
-            'id' => 222,
-            'type' => 'bbbformats',
+            'id' => 111,
+            'type' => 'aaaformats',
             'attributes' => {
-              'name' => 'tshirt'
+              'color' => 'blue'
             },
             'relationships' => {
-              'size' => {
-                'data' => [
-                  { 'id' => 333, 'type' => 'cccformats' },
-                  { 'id' => 444, 'type' => 'cccformats' }
-                ]
+              'parent' => {
+                'data' => { 'id' => 222, 'type' => 'bbbformats' }
+              }
+            },
+          },
+          'included' => [
+            {
+              'id' => 222,
+              'type' => 'bbbformats',
+              'attributes' => {
+                'name' => 'tshirt'
+              },
+              'relationships' => {
+                'size' => {
+                  'data' => [
+                    { 'id' => 333, 'type' => 'cccformats' },
+                    { 'id' => 444, 'type' => 'cccformats' }
+                  ]
+                }
+              }
+            },
+            {
+              'id' => 333,
+              'type' => 'cccformats',
+              'attributes' => {
+                'name' => 'Small'
+              }
+            },
+            {
+              'id' => 444,
+              'type' => 'cccformats',
+              'attributes' => {
+                'name' => 'Med'
               }
             }
-          },
-          {
-            'id' => 333,
-            'type' => 'cccformats',
-            'attributes' => {
-              'name' => 'Small'
-            }
-          },
-          {
-            'id' => 444,
-            'type' => 'cccformats',
-            'attributes' => {
-              'name' => 'Med'
-            }
-          }
-        ]
-      }
+          ]
+        }
+      end
+
+      it 'collects :included relations' do
+        expect(subject).to have_key('jsonapi')
+        expect(subject).to have_key('data')
+        expect(subject).to have_key('included')
+        expect(subject["data"]['id']).to eq(answer["data"]['id'])
+        expect(subject["data"]['id']).to eq(answer["data"]['id'])
+        expect(subject["data"]['type']).to eq(answer["data"]['type'])
+        expect(subject["data"]['attributes']).to eq(answer["data"]['attributes'])
+        expect(subject["data"]['relationships']).to eq(answer["data"]['relationships'])
+        answer['included'].each do |current|
+
+          expect(subject['included']).to include(current)
+        end
+      end
     end
 
-    it 'collects :included relations' do
-      expect(subject["data"]['id']).to eq(answer["data"]['id'])
-      expect(subject["data"]['type']).to eq(answer["data"]['type'])
-      expect(subject["data"]['attributes']).to eq(answer["data"]['attributes'])
-      expect(subject["data"]['relationships']).to eq(answer["data"]['relationships'])
-      answer['included'].each do |current|
-        expect(subject['included']).to include(current)
+    context 'when data is an array' do
+      let(:data) do
+        fresh_class.represent(
+          data: [
+            OpenStruct.new(
+              id: 111,
+              color: 'blue',
+              parent: OpenStruct.new(
+                id: 222,
+                name: 'tshirt',
+                size: [
+                  OpenStruct.new(
+                    id: 333,
+                    name: 'Small'
+                  ),
+                  OpenStruct.new(
+                    id: 444,
+                    name: 'Med'
+                  )
+                ]
+              )
+          )
+        ]
+      )
+      end
+
+      let(:answer) do
+        {
+          "jsonapi" => { 'version' => '1.0'},
+          "data" =>
+          [{
+            'id' => 111,
+            'type' => 'aaaformats',
+            'attributes' => {
+              'color' => 'blue'
+            },
+            'relationships' => {
+              'parent' => {
+                'data' => { 'id' => 222, 'type' => 'bbbformats' }
+              }
+            },
+          }],
+          'included' => [
+            {
+              'id' => 222,
+              'type' => 'bbbformats',
+              'attributes' => {
+                'name' => 'tshirt'
+              },
+              'relationships' => {
+                'size' => {
+                  'data' => [
+                    { 'id' => 333, 'type' => 'cccformats' },
+                    { 'id' => 444, 'type' => 'cccformats' }
+                  ]
+                }
+              }
+            },
+            {
+              'id' => 333,
+              'type' => 'cccformats',
+              'attributes' => {
+                'name' => 'Small'
+              }
+            },
+            {
+              'id' => 444,
+              'type' => 'cccformats',
+              'attributes' => {
+                'name' => 'Med'
+              }
+            }
+          ]
+        }
+      end
+
+      it 'collects :included relations' do
+        expect(subject).to have_key('jsonapi')
+        expect(subject).to have_key('data')
+        expect(subject).to have_key('included')
+        expect(subject["data"].first['id']).to eq(answer["data"].first['id'])
+        expect(subject["data"].first['type']).to eq(answer["data"].first['type'])
+        expect(subject["data"].first['attributes']).to eq(answer["data"].first['attributes'])
+        expect(subject["data"].first['relationships']).to eq(answer["data"].first['relationships'])
+        answer['included'].each do |current|
+          expect(subject['included']).to include(current)
+        end
       end
     end
   end

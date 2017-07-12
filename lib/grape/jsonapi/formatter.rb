@@ -7,75 +7,51 @@ module Grape
           @included = []
         end
 
-        def serialize_included
-          {data: collect_included(object)}.merge(included: included.flatten.uniq)
-        end
-
-        def serializable?
-          object.respond_to?(:serializable_hash) ||
-            object.is_a?(Array) &&
-              object.all? { |o| o.respond_to? :serializable_hash } ||
-            object.is_a?(Hash)
+        def rollup
+          rollup = raw_object
+          if raw_object.key? :data
+            rollup = rollup.merge(data: data)
+            rollup = rollup.merge(included: included)
+          end
+          rollup
         end
 
         private
 
         attr_reader :raw_object, :included
 
-        def object
-          serialize(raw_object)
+        def data
+          process_resource_object(raw_object[:data])
         end
 
-        # rubocop:disable  Metrics/AbcSize
-        def serialize(data)
-          if data.respond_to? :serializable_hash
-            data.serializable_hash
-          elsif data.is_a?(Array) && data.all? { |o| o.respond_to? :serializable_hash }
-            data.map(&:serializable_hash)
-          elsif data.is_a?(Hash)
-            serialize_hash(data)
-          else
-            data
-          end
+        def included
+          @included.flatten.compact.uniq
         end
-        # rubocop:enable  Metrics/AbcSize
 
-        def serialize_hash(hash_object)
-          {}.tap do |h|
-            hash_object.each_pair do |k, v|
-              h[k] = serialize(v)
+        def process_resource_object(object)
+          return object.map {|x| process_resource_object(x) } if object.is_a? Array
+
+          if object.key? :included
+            object.delete(:included).values.map do |included_resource|
+              @included << process_resource_object(included_resource)
             end
           end
+          object
         end
 
-        # rubocop:disable  Metrics/MethodLength
-        def collect_included(data)
-          return data[:data].map { |x| collect_included(x) }.compact if data[:data].is_a? Array
-
-          {}.tap do |output|
-            unless data.nil?
-              data.each_pair do |k, v|
-                if k.to_s == 'included'
-                  included << collect_included({data: v.values.flatten(1)})
-                elsif v.respond_to? :each_pair
-                  output[k] = v.has_key?(:data) ? v : collect_included(v)
-                else
-                  output[k] = v
-                end
-              end
-            end
-          end
-        end
-        # rubocop:enable  Metrics/MethodLength
       end
 
       class << self
         def call(object, _env)
           return object if object.is_a?(String)
-          formatter = IncludedRollup.new(object)
-          return MultiJson.dump(formatter.serialize_included) if formatter.serializable?
+
+          if object.respond_to?(:serializable_hash)
+            formatter = IncludedRollup.new(object.serializable_hash)
+            return MultiJson.dump(formatter.rollup)
+          end
 
           return object.to_json if object.respond_to?(:to_json)
+
           MultiJson.dump(object)
         end
       end
