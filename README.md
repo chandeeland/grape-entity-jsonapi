@@ -106,9 +106,10 @@ but instead of passing your entity directly to :with, we wrap it in a factory ca
     get '/statuses' do
       statuses = Status.all
       type = current_user.admin? ? :full : :default
-      present { data: statuses },
+      present({ data: statuses },
         with: Grape::Jsonapi::Document.top(API::Entities::Status),
         type: type
+      )
     end
   end
 ```
