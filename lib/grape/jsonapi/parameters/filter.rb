@@ -3,19 +3,19 @@ module Grape
     module Parameters
       class Filter
         class FilterBase
-          OP_EQ = 'eq'
-          OP_NE = 'ne'
-          OP_GT = 'gt'
-          OP_LT = 'lt'
-          OP_GTE = 'gte'
-          OP_LTE = 'lte'
-          OP_IN = 'in'
+          OP_EQ = 'eq'.freeze
+          OP_NE = 'ne'.freeze
+          OP_GT = 'gt'.freeze
+          OP_LT = 'lt'.freeze
+          OP_GTE = 'gte'.freeze
+          OP_LTE = 'lte'.freeze
+          OP_IN = 'in'.freeze
 
           def self.parse(param)
             filter = JSON.parse(param, symbolize_names: true)
             good_keys = (valid_keys & filter.keys) || []
             unless good_keys.count == filter.keys.count
-              error = "Invalid filter keys, #{(filter.keys - valid_keys).to_s}"
+              error = "Invalid filter keys, #{(filter.keys - valid_keys)}"
               raise Grape::Jsonapi::Exceptions::FilterError.new(error)
             end
             new(filter)
@@ -24,36 +24,33 @@ module Grape
           attr_reader :query_params
 
           def initialize(filter)
-            @query_params = filter.reduce({}) do |result, (k, v)|
+            @query_params = filter.each_with_object({}) do |(k, v), result|
               result[k] = parse_value(v)
-              result
             end
             validate!
           end
 
           def allowed_operations
-            @allowed_operations ||= [ OP_EQ, OP_GT, OP_GTE, OP_LT, OP_LTE, OP_NE, OP_IN ]
+            @allowed_operations ||= [OP_EQ, OP_GT, OP_GTE, OP_LT, OP_LTE, OP_NE, OP_IN]
           end
 
-          def is_scalar?(value)
-            [Fixnum, Float, String].include? value.class
+          def scalar?(value)
+            [Integer, Float, String].map { |type| value.is_a? type }.any?
           end
 
           def parse_value(value)
-            return [].tap do |result|
+            [].tap do |result|
               if value.is_a? Array
                 result << [OP_IN, value]
-              elsif is_scalar?(value)
+              elsif scalar?(value)
                 result << [OP_EQ, value]
               elsif value.is_a? Hash
-                value.each_pair do |value_key, scalar_value|
-                  result << [value_key.downcase, scalar_value]
-                end
+                value.each_pair { |value_key, scalar_value| result << [value_key.downcase, scalar_value] }
               end
             end
           end
 
-          def filters(&block)
+          def filters
             query_params.each_pair do |key, qfilters|
               unless (qfilters.is_a? Array) && !qfilters.empty?
                 raise Grape::Jsonapi::Exceptions::FilterError.new("Invalid type for #{key}")
@@ -64,27 +61,35 @@ module Grape
             end
           end
 
+          def validate_op_in(key, value)
+            [].tap do |errors|
+              if value.is_a? Array
+                value.each do |v|
+                  errors << "#{key} has invalid array member, #{v}" unless scalar?(v)
+                end
+              else
+                errors << "#{key} '#{OP_IN}' operation requires an array"
+              end
+            end
+          end
+
+          # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
           def validate!
             errors = []
             filters do |key, op, value|
               if !(allowed_operations.include? op.to_s)
                 errors << "#{key}: Invalid operation '#{op}', should be one of #{allowed_operations.join(', ')}"
               elsif op.to_s == OP_IN
-                if value.is_a? Array
-                  value.each do |v|
-                    errors << "#{key} has invalid array member, #{v}" unless is_scalar?(v)
-                  end
-                else
-                  errors << "#{key} '#{OP_IN}' operation requires an array"
-                end 
-              # elsif [OP_EQ, OP_NE].include? op
+                errors += validate_op_in(key, value)
               else
-                errors << "Expected scalar type for #{key} using #{op}" unless is_scalar?(value)
+                errors << "Expected scalar type for #{key} using #{op}" unless scalar?(value)
               end
             end
             raise Grape::Jsonapi::Exceptions::FilterError.new(JSON.unparse(errors)) if errors.count > 0
           end
+          # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 
+          # rubocop:disable Metrics/MethodLength
           def query_for(model)
             model.tap do |query|
               filters do |key, op, value|
@@ -94,11 +99,12 @@ module Grape
                 when OP_IN
                   query.in(key => value)
                 else
-                  query.send( op, {key => value} )
+                  query.send(op, key => value)
                 end
               end
             end
           end
+          # rubocop:enable Metrics/MethodLength
         end
 
         # Filter formats:

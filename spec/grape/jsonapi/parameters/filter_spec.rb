@@ -68,7 +68,7 @@ describe Grape::Jsonapi::Parameters::Filter do
     context 'when using explicit operations' do
       context 'bad operation' do
         let(:json) do
-          JSON.unparse(aaa: {zz: 1 } )
+          JSON.unparse(aaa: { zz: 1 })
         end
 
         it 'ok' do
@@ -79,11 +79,11 @@ describe Grape::Jsonapi::Parameters::Filter do
         end
       end
 
-      %w(gt gte lt lte ne).each do |operation|
+      %w[gt gte lt lte ne].each do |operation|
         context "#{operation} operation" do
           context 'when operant is not scalar' do
             let(:json) do
-              JSON.unparse(aaa: {operation.to_sym => [1,2,3] } )
+              JSON.unparse(aaa: { operation.to_sym => [1, 2, 3] })
             end
 
             it 'fails with error' do
@@ -96,10 +96,10 @@ describe Grape::Jsonapi::Parameters::Filter do
         end
       end
 
-      context "IN operation" do
+      context 'IN operation' do
         context 'when operant is not an array' do
           let(:json) do
-            JSON.unparse(aaa: {in: 234 } )
+            JSON.unparse(aaa: { in: 234 })
           end
 
           it 'fails with error' do
@@ -111,7 +111,7 @@ describe Grape::Jsonapi::Parameters::Filter do
         end
         context 'when operant array has weird members' do
           let(:json) do
-            JSON.unparse(aaa: {in: [2,3,4,{}] } )
+            JSON.unparse(aaa: { in: [2, 3, 4, {}] })
           end
 
           it 'fails with error' do
@@ -122,7 +122,6 @@ describe Grape::Jsonapi::Parameters::Filter do
           end
         end
       end
-
     end
   end
 
@@ -154,7 +153,7 @@ describe Grape::Jsonapi::Parameters::Filter do
     end
 
     context 'gte and ne' do
-      let(:json) { JSON.unparse(aaa: {gte: 123}, bbb: {ne: 44} ) }
+      let(:json) { JSON.unparse(aaa: { gte: 123 }, bbb: { ne: 44 }) }
       before do
         allow(model).to receive(:gte).and_return(model)
         allow(model).to receive(:ne).and_return(model)
@@ -165,6 +164,5 @@ describe Grape::Jsonapi::Parameters::Filter do
         expect(model).to have_received(:ne).with(bbb: 44)
       end
     end
-
   end
 end
