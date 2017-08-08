@@ -3,50 +3,117 @@ module Grape
     module Parameters
       class Filter
         class FilterBase
-          attr_reader :value
-          def initialize(filter)
-            @value = filter
-          end
+          OP_EQ = 'eq'
+          OP_NE = 'ne'
+          OP_GT = 'gt'
+          OP_LT = 'lt'
+          OP_GTE = 'gte'
+          OP_LTE = 'lte'
+          OP_IN = 'in'
 
           def self.parse(param)
             filter = JSON.parse(param, symbolize_names: true)
-            errors = []
-            filter.each_pair do |key, value|
-              errors << "Invalid key: #{key}" unless valid_keys.include? key
-              errors += validate_values(key, value)
+            good_keys = (valid_keys & filter.keys) || []
+            unless good_keys.count == filter.keys.count
+              error = "Invalid filter keys, #{(filter.keys - valid_keys).to_s}"
+              raise Grape::Jsonapi::Exceptions::FilterError.new(error)
             end
-            raise Grape::Jsonapi::Exceptions::FilterError.new(JSON.unparse(errors)) if errors.count > 0
             new(filter)
           end
 
-          def self.validate_values(key, value)
-            errors = []
-            if value.is_a? Array
-              value.each do |v|
-                errors << "Invalid type in array for #{key}" unless scalar?(v)
-              end
-            else
-              errors << "Invalid type for #{key}" unless scalar?(value)
+          attr_reader :query_params
+
+          def initialize(filter)
+            @query_params = filter.reduce({}) do |result, (k, v)|
+              result[k] = parse_value(v)
+              result
             end
-            errors
+            validate!
           end
 
-          def self.scalar?(value)
-            (value.is_a? Numeric) || (value.is_a? String)
+          def allowed_operations
+            @allowed_operations ||= [ OP_EQ, OP_GT, OP_GTE, OP_LT, OP_LTE, OP_NE, OP_IN ]
+          end
+
+          def is_scalar?(value)
+            [Fixnum, Float, String].include? value.class
+          end
+
+          def parse_value(value)
+            return [].tap do |result|
+              if value.is_a? Array
+                result << [OP_IN, value]
+              elsif is_scalar?(value)
+                result << [OP_EQ, value]
+              elsif value.is_a? Hash
+                value.each_pair do |value_key, scalar_value|
+                  result << [value_key.downcase, scalar_value]
+                end
+              end
+            end
+          end
+
+          def filters(&block)
+            query_params.each_pair do |key, qfilters|
+              unless (qfilters.is_a? Array) && !qfilters.empty?
+                raise Grape::Jsonapi::Exceptions::FilterError.new("Invalid type for #{key}")
+              end
+              qfilters.each do |(op, value)|
+                yield(key, op, value)
+              end
+            end
+          end
+
+          def validate!
+            errors = []
+            filters do |key, op, value|
+              if !(allowed_operations.include? op.to_s)
+                errors << "#{key}: Invalid operation '#{op}', should be one of #{allowed_operations.join(', ')}"
+              elsif op.to_s == OP_IN
+                if value.is_a? Array
+                  value.each do |v|
+                    errors << "#{key} has invalid array member, #{v}" unless is_scalar?(v)
+                  end
+                else
+                  errors << "#{key} '#{OP_IN}' operation requires an array"
+                end 
+              # elsif [OP_EQ, OP_NE].include? op
+              else
+                errors << "Expected scalar type for #{key} using #{op}" unless is_scalar?(value)
+              end
+            end
+            raise Grape::Jsonapi::Exceptions::FilterError.new(JSON.unparse(errors)) if errors.count > 0
           end
 
           def query_for(model)
-            value.keys.reduce(model) do |query, key|
-              data = value[key]
-              if data.is_a? Array
-                query.in(key => data)
-              else
-                query.where(key => data)
+            model.tap do |query|
+              filters do |key, op, value|
+                case op
+                when OP_EQ
+                  query.where(key => value)
+                when OP_IN
+                  query.in(key => value)
+                else
+                  query.send( op, {key => value} )
+                end
               end
             end
           end
         end
 
+        # Filter formats:
+        #   filter accepts a Hash
+        #   key is assumed to be the search field.
+        #
+        #   when value is scalar type, operation 'equals(==)' is implied.
+        #     { foo: 'scalar', bar: 123 } => where(foo: 'scalar', bar: 123)
+        #   if value is an array, 'IN' operation is applied
+        #     { foo: [1,2,3] } => where(:foo.in([1,2,3]))
+        #   if value is a Hash, there must be one entry,
+        #   of which the value_key is the operation, and the value must be scalar
+        #     { foo: {'<': 100 } } => where(foo < 100)
+        #   valid operations include <, <=, >, >=, ==
+        #
         def self.allow(valid_keys)
           Class.new(FilterBase).tap do |klass|
             klass.define_singleton_method(:valid_keys) do
