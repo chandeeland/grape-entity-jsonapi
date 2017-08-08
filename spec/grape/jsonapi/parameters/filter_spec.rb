@@ -145,7 +145,7 @@ describe Grape::Jsonapi::Parameters::Filter do
         allow(model).to receive(:where).and_return(model)
         allow(model).to receive(:in).and_return(model)
       end
-      it 'throws a json exception' do
+      it 'it calls mutators on the model' do
         expect(subject).to eq model
         expect(model).to have_received(:where).with(aaa: 123)
         expect(model).to have_received(:in).with(bbb: [2, 3, 4])
@@ -158,7 +158,7 @@ describe Grape::Jsonapi::Parameters::Filter do
         allow(model).to receive(:gte).and_return(model)
         allow(model).to receive(:ne).and_return(model)
       end
-      it 'throws a json exception' do
+      it 'it calls mutators on the model' do
         expect(subject).to eq model
         expect(model).to have_received(:gte).with(aaa: 123)
         expect(model).to have_received(:ne).with(bbb: 44)
