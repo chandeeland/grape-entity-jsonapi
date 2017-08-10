@@ -91,18 +91,24 @@ module Grape
 
           # rubocop:disable Metrics/MethodLength
           def query_for(model)
-            model.tap do |query|
+                # binding.pry
+            # model.tap do |query|
+            result = nil
+            
               filters do |key, op, value|
+                query = result || model
+                # binding.pry
                 case op
                 when OP_EQ
-                  query.where(key => value)
+                  result = query.where(key => value)
                 when OP_IN
-                  query.in(key => value)
+                  result = query.in(key => value)
                 else
-                  query.send(op, key => value)
+                  result = query.send(op, key => value)
                 end
               end
-            end
+
+            result
           end
           # rubocop:enable Metrics/MethodLength
         end
