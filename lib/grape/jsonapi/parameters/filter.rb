@@ -93,18 +93,18 @@ module Grape
           def query_for(model)
             result = nil
 
-              filters do |key, op, value|
-                query = result || model
-                
-                case op
-                when OP_EQ
-                  result = query.where(key => value)
-                when OP_IN
-                  result = query.in(key => value)
-                else
-                  result = query.send(op, key => value)
-                end
-              end
+            filters do |key, op, value|
+              query = result || model
+
+              result = case op
+                       when OP_EQ
+                         query.where(key => value)
+                       when OP_IN
+                         query.in(key => value)
+                       else
+                         query.send(op, key => value)
+                       end
+            end
 
             result
           end
