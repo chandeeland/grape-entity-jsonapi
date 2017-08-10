@@ -91,13 +91,11 @@ module Grape
 
           # rubocop:disable Metrics/MethodLength
           def query_for(model)
-                # binding.pry
-            # model.tap do |query|
             result = nil
-            
+
               filters do |key, op, value|
                 query = result || model
-                # binding.pry
+                
                 case op
                 when OP_EQ
                   result = query.where(key => value)
