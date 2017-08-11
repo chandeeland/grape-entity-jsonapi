@@ -90,6 +90,7 @@ module Grape
           # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 
           # rubocop:disable Metrics/MethodLength
+          # TODO: use Enumerator to change this to filter.reduce...
           def query_for(model)
             result = nil
 
