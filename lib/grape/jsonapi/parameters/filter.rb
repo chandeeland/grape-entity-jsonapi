@@ -90,19 +90,24 @@ module Grape
           # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 
           # rubocop:disable Metrics/MethodLength
+          # TODO: use Enumerator to change this to filter.reduce...
           def query_for(model)
-            model.tap do |query|
-              filters do |key, op, value|
-                case op
-                when OP_EQ
-                  query.where(key => value)
-                when OP_IN
-                  query.in(key => value)
-                else
-                  query.send(op, key => value)
-                end
-              end
+            result = nil
+
+            filters do |key, op, value|
+              query = result || model
+
+              result = case op
+                       when OP_EQ
+                         query.where(key => value)
+                       when OP_IN
+                         query.in(key => value)
+                       else
+                         query.send(op, key => value)
+                       end
             end
+
+            result
           end
           # rubocop:enable Metrics/MethodLength
         end
