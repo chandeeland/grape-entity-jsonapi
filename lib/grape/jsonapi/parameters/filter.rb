@@ -13,7 +13,8 @@ module Grape
 
           def self.parse(param)
             filter = JSON.parse(param, symbolize_names: true)
-            good_keys = (valid_keys & filter.keys) || []
+            valid_and_default_keys = valid_keys + (self.try(:default_params) && default_params.keys || [])
+            good_keys = (valid_and_default_keys & filter.keys) || []
             unless good_keys.count == filter.keys.count
               error = "Invalid filter keys, #{(filter.keys - valid_keys)}"
               raise Grape::Jsonapi::Exceptions::FilterError.new(error)
@@ -21,10 +22,17 @@ module Grape
             new(filter)
           end
 
+          def self.default(default_params)
+            self.define_singleton_method(:default_params) do
+              default_params
+            end
+            new
+          end
+
           attr_reader :query_params
 
-          def initialize(filter)
-            @query_params = filter.each_with_object({}) do |(k, v), result|
+          def initialize(filter = {})
+            @query_params = (self.class.try(:default_params) || {}).merge(filter).each_with_object({}) do |(k, v), result|
               result[k] = parse_value(v)
             end
             validate!
