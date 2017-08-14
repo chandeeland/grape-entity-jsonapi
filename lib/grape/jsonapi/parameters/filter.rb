@@ -11,20 +11,33 @@ module Grape
           OP_LTE = 'lte'.freeze
           OP_IN = 'in'.freeze
 
+          # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
           def self.parse(param)
             filter = JSON.parse(param, symbolize_names: true)
-            good_keys = (valid_keys & filter.keys) || []
+            valid_and_default_keys = valid_keys + (try(:default_params) && default_params.keys || [])
+            good_keys = (valid_and_default_keys & filter.keys) || []
             unless good_keys.count == filter.keys.count
-              error = "Invalid filter keys, #{(filter.keys - valid_keys)}"
+              error = "Invalid filter keys, #{(filter.keys - valid_and_default_keys)}"
               raise Grape::Jsonapi::Exceptions::FilterError.new(error)
             end
             new(filter)
           end
+          # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
+
+          def self.default(default_params)
+            define_singleton_method(:default_params) do
+              default_params
+            end
+
+            self
+          end
 
           attr_reader :query_params
 
-          def initialize(filter)
-            @query_params = filter.each_with_object({}) do |(k, v), result|
+          def initialize(filter = {})
+            @query_params = (self.class.try(:default_params) || {})
+                            .merge(filter).each_with_object({}) do |(k, v), result|
+
               result[k] = parse_value(v)
             end
             validate!
