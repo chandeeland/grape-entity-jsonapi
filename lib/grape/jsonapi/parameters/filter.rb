@@ -35,7 +35,6 @@ module Grape
           attr_reader :query_params
 
           def initialize(filter = {})
-            # binding.pry
             @query_params = (self.class.try(:default_params) || {})
                             .merge(filter).each_with_object({}) do |(k, v), result|
 
