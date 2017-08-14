@@ -17,7 +17,7 @@ module Grape
             valid_and_default_keys = valid_keys + (try(:default_params) && default_params.keys || [])
             good_keys = (valid_and_default_keys & filter.keys) || []
             unless good_keys.count == filter.keys.count
-              error = "Invalid filter keys, #{(filter.keys - valid_keys)}"
+              error = "Invalid filter keys, #{(filter.keys - valid_and_default_keys)}"
               raise Grape::Jsonapi::Exceptions::FilterError.new(error)
             end
             new(filter)
