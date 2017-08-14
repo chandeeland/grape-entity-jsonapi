@@ -10,6 +10,20 @@ describe Grape::Jsonapi::Parameters::Filter do
     end
   end
 
+  context '#default' do
+    subject { described_class.allow(valid_keys).default(default_params) }
+    let(:default_params) { { foo: 'bar' } }
+
+    it 'creates default params for the filter' do
+      expect(subject.query_params).to eq({ :foo => [["eq", 'bar']]})
+    end
+
+    it 'allows modifications to the default params' do
+      new_filter = subject.class.parse( JSON.unparse({:foo => 'baz'}))
+      expect(new_filter.query_params).to eq({ :foo => [["eq", 'baz']]})
+    end
+  end
+
   context '#parse' do
     subject { described_class.allow(valid_keys).parse(json) }
 
