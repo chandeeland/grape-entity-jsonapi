@@ -24,7 +24,7 @@ describe Grape::Jsonapi::Parameters::Filter do
     end
 
     context 'when including default params' do
-      let(:valid_keys) { ['cat']}
+      let(:valid_keys) { ['cat'] }
 
       it 'allows modification to valid keys' do
         new_filter = subject.parse(JSON.unparse(cat: 'dog'))
