@@ -207,7 +207,6 @@ describe Grape::Jsonapi::Entity::Resource do
           end
         end
 
-
         context 'id is a BSON object that needs to be formatted to string' do
           let(:bson_object) do
             double(:bson_object).tap do |o|
@@ -280,8 +279,8 @@ describe Grape::Jsonapi::Entity::Resource do
 
         let(:data) do
           OpenStruct.new(
-            id: 1, 
-            name: 'foo', 
+            id: 1,
+            name: 'foo',
             type: 'bar'
           )
         end
