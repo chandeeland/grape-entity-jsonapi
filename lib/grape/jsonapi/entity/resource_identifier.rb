@@ -14,7 +14,7 @@ module Grape
         end
 
         expose :id, format_with: :to_string
-        expose :type
+        expose :json_api_type, as: :type
 
         expose :meta, if: lambda { |instance, _options|
           (instance.respond_to? :meta) && (instance.meta.keys.count > 0)
@@ -26,10 +26,10 @@ module Grape
 
         # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity
 
-        def type
-          object.try(:type) ||
-            (object.is_a? Hash) && object.fetch(:type, nil) ||
-            (object.is_a? Hash) && object.fetch('type', nil) ||
+        def json_api_type
+          object.try(:json_api_type) ||
+            (object.is_a? Hash) && object.fetch(:json_api_type, nil) ||
+            (object.is_a? Hash) && object.fetch('json_api_type', nil) ||
             self.class.type_plural ||
             self.class.name.split('::').last.downcase.pluralize
         end
