@@ -207,6 +207,7 @@ describe Grape::Jsonapi::Entity::Resource do
           end
         end
 
+
         context 'id is a BSON object that needs to be formatted to string' do
           let(:bson_object) do
             double(:bson_object).tap do |o|
@@ -265,6 +266,31 @@ describe Grape::Jsonapi::Entity::Resource do
             expect(subject[:attributes][:parents]).to be_instance_of Array
             expect(subject[:attributes][:parents].count).to eq 0
           end
+        end
+      end
+
+      context 'when the data has an attrbute name of "type"' do
+        let(:fresh_class) do
+          class MMM < described_class
+            attribute :name
+            attribute :type
+          end
+          MMM
+        end
+
+        let(:data) do
+          OpenStruct.new(
+            id: 1, 
+            name: 'foo', 
+            type: 'bar'
+          )
+        end
+
+        it 'represents' do
+          expect(subject[:id]).to eql(1)
+          expect(subject[:type]).to eql('mmms')
+          expect(subject[:attributes]).to include(name: 'foo')
+          expect(subject[:attributes]).to include(type: 'bar')
         end
       end
     end
