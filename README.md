@@ -32,17 +32,13 @@ end
 
 Following Json Api v 1.0 spec.  [Resource Objects](http://jsonapi.org/format/#document-resource-objects)
 may expose the following fields
-- id
-- type
-- attributes
-- relationships
 
-`id` field is automatically exposed by `Grape::Jsonapi::Entity::Resource`
-`type` field is automatically exposed by `Grape::Jsonapi::Entity::Resource`, additionally it will make an attempt to automatically determine a type using either the
-  plural word passed via the `root` method, or based on the class name of the resource entity.
-`attributes` can be exposed using the `attribute` method, instead of `expose`.  All `expose` options and block syntax should work with `attribute`
-`relationships` of [compound-documents](http://jsonapi.org/format/#document-compound-documents) can be represented using the `nest` method, and expects the `:using` option to be passed with another Resource Entity
-
+field | description
+------------ | -------------
+`id` | automatically exposed by `Grape::Jsonapi::Entity::Resource`
+`type` | automatically exposed by `Grape::Jsonapi::Entity::Resource`, additionally it will make an attempt to automatically determine a type using either the plural word passed via the `root` method, or based on the class name of the resource entity.  To specify a `type`, you can overload the `json_api_type` method in your resource as shown [here](#json_api_type).  You can also use the `json_api_type` keyword as in [this](#presenting) example 
+`attributes` | can be exposed using the `attribute` method, instead of `expose`.  All `expose` options and block syntax should work with `attribute`
+`relationships` | `relationships` of [compound-documents](http://jsonapi.org/format/#document-compound-documents) can be represented using the `nest` method, and expects the `:using` option to be passed with another Resource Entity
 
 #### Example Resources
 
@@ -89,11 +85,29 @@ module API
 end
 ```
 
+### json_api_type
+Overloading the `json_api_type` method is one way of specifying the `type` field in your Json Api output.  The following code will output 'Weather' in the `type` field.
+
+```
+module API
+  module Entities
+    class Status < Grape::Jsonapi::Entity::Resource
+      attribute :user_name
+      attribute :ip
+
+      def json_api_type
+        'Weather'
+      end
+    end
+  end
+end
+```
+
 ### Presenting
 
 This follows the `grape-entity` use of [present](https://github.com/ruby-grape/grape#restful-model-representations).
 but instead of passing your entity directly to :with, we wrap it in a factory call to nest the data inside Jsonapi's
-[top level document structure](http://jsonapi.org/format/#document-top-level)
+[top level document structure](http://jsonapi.org/format/#document-top-level).  It also makes the output of the `type` field the result of `current_user.admin? ? :full : :default`
 
 ```ruby
   class Statuses < Grape::API
@@ -108,7 +122,7 @@ but instead of passing your entity directly to :with, we wrap it in a factory ca
       type = current_user.admin? ? :full : :default
       present({ data: statuses },
         with: Grape::Jsonapi::Document.top(API::Entities::Status),
-        type: type
+        json_api_type: type
       )
     end
   end
