@@ -6,7 +6,7 @@ describe Grape::Jsonapi::Entity::Resource do
   context '#fields' do
     subject { fresh_class.root_exposures.map(&:attribute) }
     it 'has correct fields' do
-      expect(subject).to eq %i[id type meta]
+      expect(subject).to eq %i[id json_api_type meta]
     end
   end
 

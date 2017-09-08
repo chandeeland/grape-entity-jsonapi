@@ -6,7 +6,7 @@ describe Grape::Jsonapi::Entity::ResourceIdentifier do
   end
 
   class HorseDog < described_class
-    def type
+    def json_api_type
       self.class.name.split('::').last.underscore.pluralize
     end
   end
@@ -25,7 +25,7 @@ describe Grape::Jsonapi::Entity::ResourceIdentifier do
 
       context 'when object includes :type field' do
         let(:data) do
-          { id: 123, type: 'dogs' }
+          { id: 123, json_api_type: 'dogs' }
         end
 
         it 'should show object.type' do
@@ -63,7 +63,7 @@ describe Grape::Jsonapi::Entity::ResourceIdentifier do
 
       context 'when object includes :type field' do
         let(:data) do
-          { id: 123, type: 'dogs' }
+          { id: 123, json_api_type: 'dogs' }
         end
 
         it 'should show object.type' do
