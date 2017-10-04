@@ -148,44 +148,99 @@ describe Grape::Jsonapi::Parameters::Filter do
     end
   end
 
+  module ActiveRecord
+    class Base < RSpec::Mocks::Double; end
+  end
+  module Mongoid
+    class Document < RSpec::Mocks::Double; end
+  end
+
   context '.query_for' do
-    subject do
-      described_class
-        .allow(valid_keys)
-        .parse(json)
-        .query_for(model)
-    end
+    context 'mongoid model' do
+      let(:model) { Mongoid::Document.new }
+      subject do
+        described_class
+          .allow(valid_keys)
+          .parse(json)
+          .query_for(model)
+      end
 
-    let(:model) { double(:model) }
-    let(:query) { double(:query) }
+      let(:query) { double(:query) }
 
-    before do
-      allow(model).to receive(:all).and_return(model)
-    end
-
-    context 'eq and in' do
-      let(:json) { JSON.unparse(aaa: 123, bbb: [2, 3, 4]) }
       before do
-        allow(model).to receive(:where).and_return(query)
-        allow(query).to receive(:in).and_return(query)
+        model
+        allow(model).to receive(:all).and_return(model)
       end
-      it 'it calls mutators on the model' do
-        expect(subject).to eq query
-        expect(model).to have_received(:where).with(aaa: 123)
-        expect(query).to have_received(:in).with(bbb: [2, 3, 4])
+
+      context 'eq and in' do
+        let(:json) { JSON.unparse(aaa: 123, bbb: [2, 3, 4]) }
+        before do
+          allow(model).to receive(:where).and_return(query)
+          allow(query).to receive(:in).and_return(query)
+        end
+        it 'it calls mutators on the model' do
+          expect(subject).to eq query
+          expect(model).to have_received(:where).with(aaa: 123)
+          expect(query).to have_received(:in).with(bbb: [2, 3, 4])
+        end
+      end
+
+      context 'gte and ne' do
+        let(:json) { JSON.unparse(aaa: { gte: 123 }, bbb: { ne: 44 }) }
+        before do
+          allow(model).to receive(:gte).and_return(query)
+          allow(query).to receive(:ne).and_return(query)
+        end
+        it 'it calls mutators on the model' do
+          expect(subject).to eq query
+          expect(model).to have_received(:gte).with(aaa: 123)
+          expect(query).to have_received(:ne).with(bbb: 44)
+        end
       end
     end
 
-    context 'gte and ne' do
-      let(:json) { JSON.unparse(aaa: { gte: 123 }, bbb: { ne: 44 }) }
-      before do
-        allow(model).to receive(:gte).and_return(query)
-        allow(query).to receive(:ne).and_return(query)
+    context 'active record model' do
+      let(:model) { ActiveRecord::Base.new }
+
+      subject do
+        described_class
+          .allow(valid_keys)
+          .parse(json)
+          .query_for(model)
       end
-      it 'it calls mutators on the model' do
-        expect(subject).to eq query
-        expect(model).to have_received(:gte).with(aaa: 123)
-        expect(query).to have_received(:ne).with(bbb: 44)
+
+      let(:query) { double(:query) }
+
+      before do
+        model
+        allow(model).to receive(:all).and_return(model)
+      end
+
+      context 'eq and in' do
+        let(:json) { JSON.unparse(aaa: 123, bbb: [2, 3, 4]) }
+        before do
+          allow(model).to receive(:where).and_return(query)
+          allow(query).to receive(:where).and_return(query)
+        end
+
+        it 'it calls mutators on the model' do
+          expect(subject).to eq query
+          expect(model).to have_received(:where).with(aaa: 123)
+          expect(query).to have_received(:where).with(bbb: [2, 3, 4])
+        end
+      end
+
+      context 'gte and ne' do
+        let(:json) { JSON.unparse(aaa: { gte: 123 }, bbb: { ne: 44 }) }
+        before do
+          allow(model).to receive(:where).and_return(query)
+          allow(query).to receive(:where_not).and_return(query)
+        end
+        it 'it calls mutators on the model' do
+          expect(subject).to eq query
+          expect(model).to have_received(:where).with('aaa >= ?', 123)
+          expect(query).to have_received(:where_not).with(bbb: 44)
+        end
       end
     end
   end
