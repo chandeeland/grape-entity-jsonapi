@@ -1,6 +1,7 @@
 module Grape
   module Jsonapi
     module Parameters
+      # rubocop:disable Metrics/ClassLength
       class Filter
         class FilterBase
           OP_EQ = 'eq'.freeze
@@ -102,15 +103,44 @@ module Grape
           end
           # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 
-          # rubocop:disable Metrics/MethodLength
-          # TODO: use Enumerator to change this to filter.reduce...
           def query_for(model)
-            result = nil
+            return query_for_sql(model) if model.is_a? ActiveRecord::Base
+            return query_for_mongo(model) if model.is_a? Mongoid::Document
+          end
 
+          # rubocop:disable Metrics/MethodLength, Style/CyclomaticComplexity
+          def query_for_sql(model)
+            result = nil
+            filters do |key, op, value|
+              query = result || model
+              result = case op.to_s
+                       when OP_EQ
+                         query.where(key => value)
+                       when OP_IN
+                         query.where(key => value)
+                       when OP_NE
+                         query.where_not(key => value)
+                       when OP_GT
+                         query.where("#{key} > ?", value)
+                       when OP_LT
+                         query.where("#{key} < ?", value)
+                       when OP_GTE
+                         query.where("#{key} >= ?", value)
+                       when OP_LTE
+                         query.where("#{key} <= ?", value)
+                       end
+            end
+            result
+          end
+          # rubocop:enable Metrics/MethodLength, Style/CyclomaticComplexity
+
+          # rubocop:disable Metrics/MethodLength
+          def query_for_mongo(model)
+            result = nil
             filters do |key, op, value|
               query = result || model
 
-              result = case op
+              result = case op.to_s
                        when OP_EQ
                          query.where(key => value)
                        when OP_IN
@@ -146,6 +176,7 @@ module Grape
           end
         end
       end
+      # rubocop:enable Metrics/ClassLength
     end
   end
 end
