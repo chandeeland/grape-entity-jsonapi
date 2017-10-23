@@ -2,6 +2,26 @@
 module Grape
   module Jsonapi
     class Exposer
+
+      def self.decider(field, block)
+        lambda do |instance, options|
+
+          def field_exists?(field)
+            lambda do |instance, _options|
+              if instance.is_a? Hash
+                (instance.key? field.to_sym) || (instance.key? field)
+              else
+                (instance.respond_to? field.to_sym) && !instance.send(field.to_sym).nil?
+              end
+            end
+          end
+
+          default = true
+          default = block.call(instance, options) if block_given?
+          default && field_exists?(field).call(instance, options)
+        end
+      end
+
       def self.field_exists?(field)
         lambda do |instance, _options|
           if instance.is_a? Hash

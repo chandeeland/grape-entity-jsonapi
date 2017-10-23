@@ -18,8 +18,8 @@ describe Grape::Jsonapi::Formatter do
 
       class NestedClass < Grape::Jsonapi::Entity::Resource
         attribute :name
-        nest :format_type, using: FirstFormat, if: lambda { |object, _options| object.type == "firstformats" }
-        nest :format_type, using: SecondFormat, if: lambda { |object, _options| object.type == "secondformats" }
+        nest :first, using: FirstFormat, if: lambda { |object, _options| object.object_type == "First" }
+        nest :second, using: SecondFormat, if: lambda { |object, _options| object.object_type == "Second" }
       end
 
       Grape::Jsonapi::Document.top(NestedClass)
@@ -126,7 +126,7 @@ describe Grape::Jsonapi::Formatter do
 
       it 'represents the data correctly (FirstFormat)' do
         first_response = JSON.parse(described_class.call(first_data, {}))
-        binding.pry
+
         expect(first_response).to have_key('jsonapi')
         expect(first_response).to have_key('data')
         expect(first_response).to have_key('included')
@@ -142,6 +142,7 @@ describe Grape::Jsonapi::Formatter do
 
       it 'represents the data correctly (SecondFormat)' do
         second_response = JSON.parse(described_class.call(first_data, {}))
+
         expect(second_response).to have_key('jsonapi')
         expect(second_response).to have_key('data')
         expect(second_response).to have_key('included')

@@ -71,7 +71,7 @@ module Grape
                           nesting: true,
                           if: Jsonapi::Exposer.field_exists?(name.to_sym))
           relationships_exposure.nested_exposures << relation
-          opts = options.merge(if: Jsonapi::Exposer.field_exists?(name.to_sym))
+          opts = options.merge(if: Jsonapi::Exposer.decider(name.to_sym, options.try(:if)))
           _expose_inside(relation, [name, _relationship_options(name, opts)])
         end
 
@@ -81,6 +81,7 @@ module Grape
         end
 
         def self._expose_inside(new_nesting_stack, args, &block)
+          # binding.pry
           old_nesting_stack = @nesting_stack
           @nesting_stack = [new_nesting_stack]
           expose(*args) unless block_given?
