@@ -57,10 +57,12 @@ module Grape
         end
 
         def self._relationship_options(name, options)
+          root_name = using_name(name, options.fetch(:using, nil)).to_s
           options.merge(
             as: 'data',
             using: Class.new(Grape::Jsonapi::Entity::ResourceIdentifier).tap do |klass|
-              klass.root(using_name(name, options.fetch(:using, nil)))
+              const_set("ResourceId#{root_name.demodulize.camelize}", klass)
+              klass.root(root_name)
             end
           )
         end
