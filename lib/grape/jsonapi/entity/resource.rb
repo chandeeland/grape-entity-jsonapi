@@ -44,24 +44,10 @@ module Grape
           _expose_included(name, options)
         end
 
-        def self.using_name(name, entity)
-          name_from_type(entity) || name_from_class(entity) || name
-        end
-
-        def self.name_from_type(entity)
-          return entity.type if entity.respond_to?(:type)
-        end
-
-        def self.name_from_class(entity)
-          return entity.name.split('::').last.downcase.pluralize unless entity.nil?
-        end
-
         def self._relationship_options(name, options)
           options.merge(
             as: 'data',
-            using: Class.new(Grape::Jsonapi::Entity::ResourceIdentifier).tap do |klass|
-              klass.root(using_name(name, options.fetch(:using, nil)))
-            end
+            using: Document.resource_id(name, options.fetch(:using, nil))
           )
         end
 
