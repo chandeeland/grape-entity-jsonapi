@@ -108,7 +108,7 @@ module Grape
             return query_for_mongo(model) if model.is_a? Mongoid::Document
           end
 
-          # rubocop:disable Metrics/MethodLength, Style/CyclomaticComplexity
+          # rubocop:disable Metrics/MethodLength, Metrics/CyclomaticComplexity
           def query_for_sql(model)
             result = nil
             filters do |key, op, value|
@@ -132,7 +132,7 @@ module Grape
             end
             result
           end
-          # rubocop:enable Metrics/MethodLength, Style/CyclomaticComplexity
+          # rubocop:enable Metrics/MethodLength, Metrics/CyclomaticComplexity
 
           # rubocop:disable Metrics/MethodLength
           def query_for_mongo(model)
