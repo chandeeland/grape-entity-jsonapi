@@ -15,7 +15,7 @@ describe Grape::Jsonapi::Document do
     data = subject.root_exposures.select { |x| x.attribute == :data }.first.send(:options)
     expect(data[:using]).to eq resource
 
-    expect(subject.name).to eq 'Grape::Jsonapi::Document::AAAdoc'
+    expect(subject.name).to eq 'Grape::Jsonapi::Document::TopAAAdoc'
   end
 
   context 'with a module' do
@@ -35,7 +35,7 @@ describe Grape::Jsonapi::Document do
       data = subject.root_exposures.select { |x| x.attribute == :data }.first.send(:options)
       expect(data[:using]).to eq resource
 
-      expect(subject.name).to eq 'Grape::Jsonapi::Document::BBBdoc'
+      expect(subject.name).to eq 'Grape::Jsonapi::Document::TopBBBdoc'
     end
   end
 end
