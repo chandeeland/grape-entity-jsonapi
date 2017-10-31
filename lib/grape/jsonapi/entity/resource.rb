@@ -33,7 +33,9 @@ module Grape
 
           def avoid_recursive_relation_check(nested_class)
             return false if nested_class.root_exposures.empty?
-            nesting_exposures = nested_class.root_exposures.select { |exposure| exposure.class == Grape::Entity::Exposure::NestingExposure }
+            nesting_exposures = nested_class.root_exposures.select do |exposure|
+              exposure.class == Grape::Entity::Exposure::NestingExposure
+            end
             return false if nesting_exposures.empty?
             result = nesting_exposures.detect do |exposure|
               recursive_exposure?(exposure)
