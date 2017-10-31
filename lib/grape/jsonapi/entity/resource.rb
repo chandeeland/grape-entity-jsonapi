@@ -28,6 +28,28 @@ module Grape
               end
             end
           end
+
+          private
+
+          def avoid_recursive_relation_check(nested_class)
+            return false if nested_class.root_exposures.empty?
+            nesting_exposures = nested_class.root_exposures.select { |exposure| exposure.class == Grape::Entity::Exposure::NestingExposure }
+            return false if nesting_exposures.empty?
+            result = nesting_exposures.detect do |exposure|
+              recursive_exposure?(exposure)
+            end
+            result
+          end
+
+          def recursive_exposure?(exposure)
+            if exposure.try(:nested_exposures)
+              exposure.nested_exposures.detect do |nested_exposure|
+                recursive_exposure?(nested_exposure)
+              end
+            else
+              exposure.send(:options).dig(:using) == self
+            end
+          end
         end
 
         def self.root(plural, _singular)
@@ -40,6 +62,7 @@ module Grape
         end
 
         def self.nest(name, options = {})
+          return if options[:using] && avoid_recursive_relation_check(options[:using])
           _expose_relationships(name, options)
           _expose_included(name, options)
         end
