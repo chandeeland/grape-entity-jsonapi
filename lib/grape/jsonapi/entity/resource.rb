@@ -37,7 +37,7 @@ module Grape
               exposure.class == Grape::Entity::Exposure::NestingExposure
             end
             return false if nesting_exposures.empty?
-            result = nesting_exposures.detect do |exposure|
+            result = nesting_exposures.any? do |exposure|
               recursive_exposure?(exposure)
             end
             result
@@ -45,7 +45,7 @@ module Grape
 
           def recursive_exposure?(exposure)
             if exposure.try(:nested_exposures)
-              exposure.nested_exposures.detect do |nested_exposure|
+              exposure.nested_exposures.any? do |nested_exposure|
                 recursive_exposure?(nested_exposure)
               end
             else
