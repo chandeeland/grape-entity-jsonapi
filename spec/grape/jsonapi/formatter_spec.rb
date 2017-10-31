@@ -116,6 +116,11 @@ describe Grape::Jsonapi::Formatter do
             'type' => 'bbbformats',
             'attributes' => {
               'name' => 'tshirt'
+            },
+            'relationships' => {
+              'child' => {
+                'data' => { 'id' => 111, 'type' => 'aaaformats' }
+              }
             }
           }
         ]

@@ -64,8 +64,8 @@ module Grape
         end
 
         def self.nest(name, options = {})
-          return if options[:using] && avoid_recursive_relation_check(options[:using])
           _expose_relationships(name, options)
+          return if options[:using] && avoid_recursive_relation_check(options[:using])
           _expose_included(name, options)
         end
 
