@@ -93,6 +93,83 @@ describe Grape::Jsonapi::Formatter do
       }
     end
 
+    context 'with recursive nesting' do
+      let(:resource) do
+        OpenStruct.new(
+          id: 111,
+          color: 'blue',
+          parent: OpenStruct.new(
+            id: 222,
+            name: 'tshirt',
+            child: OpenStruct.new(
+              id: 111,
+              color: 'blue'
+            )
+          )
+        )
+      end
+
+      let(:answer_included) do
+        [
+          {
+            'id' => 222,
+            'type' => 'bbbformats',
+            'attributes' => {
+              'name' => 'tshirt'
+            },
+            'relationships' => {
+              'child' => {
+                'data' => { 'id' => 111, 'type' => 'aaaformats' }
+              }
+            }
+          }
+        ]
+      end
+
+      let(:fresh_class) do
+        class BBBformat < Grape::Jsonapi::Entity::Resource
+        end
+
+        class AAAformat < Grape::Jsonapi::Entity::Resource
+          attribute :color
+          nest :parent, using: BBBformat
+        end
+
+        class BBBformat < Grape::Jsonapi::Entity::Resource
+          attribute :name
+          nest :child, using: AAAformat
+        end
+
+        Grape::Jsonapi::Document.top(AAAformat)
+      end
+
+      let(:data) do
+        fresh_class.represent(data: resource)
+      end
+
+      let(:answer) do
+        {
+          'jsonapi' => { 'version' => '1.0' },
+          'data' => answer_data,
+          'included' => answer_included
+        }
+      end
+
+      it 'represents data only one level deep' do
+        expect(subject).to have_key('jsonapi')
+        expect(subject).to have_key('data')
+        expect(subject).to have_key('included')
+        expect(subject['data']['id']).to eq(answer['data']['id'])
+        expect(subject['data']['id']).to eq(answer['data']['id'])
+        expect(subject['data']['type']).to eq(answer['data']['type'])
+        expect(subject['data']['attributes']).to eq(answer['data']['attributes'])
+        expect(subject['data']['relationships']).to eq(answer['data']['relationships'])
+        answer['included'].each do |current|
+          expect(subject['included']).to include(current)
+        end
+      end
+    end
+
     context 'when data is not an array' do
       let(:data) do
         fresh_class.represent(data: resource)
