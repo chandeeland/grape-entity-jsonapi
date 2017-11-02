@@ -1,9 +1,20 @@
 require 'grape/jsonapi/entity/resource_identifier'
 
 module Grape
+  class Entity
+    OPTIONS = %i[
+          rewrite as if unless using with proc documentation format_with safe attr_path if_extras unless_extras merge tracker
+        ].to_set.freeze
+  end
+
   module Jsonapi
     module Entity
       class Resource < ResourceIdentifier
+
+        # OPTIONS = %i[
+        #       rewrite as if unless using with proc documentation format_with safe attr_path if_extras unless_extras merge tracker
+        #     ].to_set.freeze
+
         class << self
           def attributes_exposure
             @attributes_exposure ||= begin
@@ -42,6 +53,8 @@ module Grape
         end
 
         def self.nest(name, options = {})
+          binding.pry
+          options[:tracker] ||= Grape::Jsonapi::Exposer::RecurseCounter.new
           _expose_relationships(name, options)
           _expose_included(name, options)
         end
@@ -64,11 +77,13 @@ module Grape
         end
 
         def self._expose_included(name, options = {})
-          opts = options.merge(if: Jsonapi::Exposer.non_recursive?(name.to_sym))
+          binding.pry
+          opts = options.merge(unless: Jsonapi::Exposer.recursive?(self))
           _expose_inside(included_exposure, [name, opts])
         end
 
         def self._expose_inside(new_nesting_stack, args, &block)
+          # binding.pry
           old_nesting_stack = @nesting_stack
           @nesting_stack = [new_nesting_stack]
           expose(*args) unless block_given?

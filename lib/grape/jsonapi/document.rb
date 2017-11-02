@@ -20,7 +20,8 @@ module Grape
 
           klass.expose :data,
                        using: resource,
-                       unless: Jsonapi::Exposer.field_exists?(:errors)
+                       unless: Jsonapi::Exposer.field_exists?(:errors),
+                       tracker: Jsonapi::Exposer::RecurseCounter.new
         end
       end
 

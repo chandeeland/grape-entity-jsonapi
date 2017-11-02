@@ -220,6 +220,7 @@ describe Grape::Jsonapi::Formatter do
         expect(subject['data'].first['attributes']).to eq(answer['data'].first['attributes'])
         expect(subject['data'].first['relationships']).to eq(answer['data'].first['relationships'])
         answer['included'].each do |current|
+        # binding.pry
           expect(subject['included']).to include(current)
         end
       end
