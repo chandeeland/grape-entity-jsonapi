@@ -13,13 +13,24 @@ module Grape
         @instance ||= new
       end
 
+      def nest(resource, parent)
+        Class.new(resource).tap do |klass|
+          Grape::Jsonapi::Document.const_set(resource.name, klass)
+          klass.include Grape::Jsonapi::Entity::Tracker
+          class << klass
+            attr_accessor :parent
+          end
+          klass.parent = parent
+        end
+      end
+
       def top(resource)
         name = "Top#{resource.name.demodulize}"
         @top[name] ||= Class.new(Grape::Jsonapi::Entity::Top).tap do |klass|
           Grape::Jsonapi::Document.const_set(name, klass)
 
           klass.expose :data,
-                       using: resource,
+                       using: nest(resource, klass),
                        unless: Jsonapi::Exposer.field_exists?(:errors)
         end
       end

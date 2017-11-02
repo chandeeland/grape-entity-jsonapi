@@ -4,6 +4,7 @@ module Grape
   module Jsonapi
     module Entity
       class Resource < ResourceIdentifier
+
         class << self
           def attributes_exposure
             @attributes_exposure ||= begin
@@ -30,7 +31,7 @@ module Grape
           end
         end
 
-          private
+        private
 
         def self.root(plural, _singular)
           @type_plural = plural
@@ -64,11 +65,18 @@ module Grape
         end
 
         def self._expose_included(name, options = {})
-          opts = options.merge(if: Jsonapi::Exposer.non_recursive?(name.to_sym))
+          resource = options[:using]
+          binding.pry
+          opts = options.merge(
+            unless: Jsonapi::Exposer.recursive?(name.to_sym),
+            using: Jsonapi::Document.instance.nest(resource, self)
+          )
+
           _expose_inside(included_exposure, [name, opts])
         end
 
         def self._expose_inside(new_nesting_stack, args, &block)
+          # binding.pry
           old_nesting_stack = @nesting_stack
           @nesting_stack = [new_nesting_stack]
           expose(*args) unless block_given?

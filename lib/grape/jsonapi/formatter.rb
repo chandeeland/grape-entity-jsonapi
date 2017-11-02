@@ -8,6 +8,7 @@ module Grape
         end
 
         def rollup
+          # binding.pry if raw_object.nil?
           rollup = raw_object
           if raw_object.key? :data
             rollup = rollup.merge(data: data)
@@ -21,6 +22,7 @@ module Grape
         attr_reader :raw_object, :included
 
         def data
+          # binding.pry if raw_object[:data].nil?
           process_resource_object(raw_object[:data])
         end
 
@@ -33,7 +35,8 @@ module Grape
 
           if object.key? :included
             object.delete(:included).values.map do |included_resource|
-              @included << process_resource_object(included_resource)
+              # included_resource can be nil as a result of Exposer.recursive?
+              @included << process_resource_object(included_resource) unless included_resource.nil?
             end
           end
           object

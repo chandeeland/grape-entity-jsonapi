@@ -128,6 +128,7 @@ describe Grape::Jsonapi::Formatter do
 
       let(:fresh_class) do
         class BBBformat < Grape::Jsonapi::Entity::Resource
+          attribute :name
         end
 
         class AAAformat < Grape::Jsonapi::Entity::Resource
@@ -135,8 +136,7 @@ describe Grape::Jsonapi::Formatter do
           nest :parent, using: BBBformat
         end
 
-        class BBBformat < Grape::Jsonapi::Entity::Resource
-          attribute :name
+        class BBBformat 
           nest :child, using: AAAformat
         end
 
@@ -220,6 +220,7 @@ describe Grape::Jsonapi::Formatter do
         expect(subject['data'].first['attributes']).to eq(answer['data'].first['attributes'])
         expect(subject['data'].first['relationships']).to eq(answer['data'].first['relationships'])
         answer['included'].each do |current|
+        # binding.pry
           expect(subject['included']).to include(current)
         end
       end

@@ -4,17 +4,14 @@ module Grape
     class Exposer
 
       class RecurseCounter
-        def self.instance
-          @instance ||= new
-        end
-
-        def self.found?(obj)
-          instance.found?(obj)
+        def initialize
+          @counter = {}
         end
 
         def found?(obj)
-          return nil if obj.nil?
-          return nil unless obj.respond_to? :id
+          return false if obj.nil?
+          return false unless obj.respond_to? :id
+
           key = "#{obj.class.name}#{obj.id}"
           answer = @counter.key? key
           @counter[key] = true
@@ -24,20 +21,16 @@ module Grape
         private
 
         attr_reader :counter
-
-        def initialize
-          @counter = {}
-        end
-
       end
 
-      def self.non_recursive?(field)
-        lambda do |instance, _options|
+      def self.recursive?(field)
+        lambda do |instance, options|
           if instance.is_a? Hash
-            RecurseCounter.found?(instance.key? field.to_sym) || (instance.key? field.to_s)
+            value = (instance.key? field.to_sym) || (instance.key? field.to_s)
           elsif instance.respond_to? field.to_sym
-            RecurseCounter.found?(instance.send(field.to_sym))
+            value = instance.send(field.to_sym)
           end
+          value ? options[:tracker].found?(value) : false
         end
       end
 

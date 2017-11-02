@@ -1,3 +1,4 @@
+require 'grape/jsonapi/entity/tracker'
 require 'grape/jsonapi/entity/errors'
 require 'grape/jsonapi/entity/links'
 require 'grape/jsonapi/entity/resource'

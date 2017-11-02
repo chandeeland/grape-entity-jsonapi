@@ -1,7 +1,7 @@
 module Grape
   module Jsonapi
     module Entity
-      class Top < ::Grape::Entity
+      class Top < Grape::Entity
         expose :errors,
                using: ::Grape::Jsonapi::Entity::Errors,
                if: Jsonapi::Exposer.field_exists?(:errors)
