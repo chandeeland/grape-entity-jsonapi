@@ -101,10 +101,24 @@ describe Grape::Jsonapi::Formatter do
           parent: OpenStruct.new(
             id: 222,
             name: 'tshirt',
-            child: OpenStruct.new(
-              id: 111,
-              color: 'blue'
-            )
+            child: [
+              OpenStruct.new(
+                id: 111,
+                color: 'blue',
+                parent: OpenStruct.new(
+                  id: 222,
+                  name: 'tshirt'
+                ),
+              ),
+              OpenStruct.new(
+                id: 444,
+                color: 'red',
+                parent: OpenStruct.new(
+                  id: 222,
+                  name: 'tshirt'
+                ),
+              )
+            ]
           )
         )
       end
@@ -119,7 +133,10 @@ describe Grape::Jsonapi::Formatter do
             },
             'relationships' => {
               'child' => {
-                'data' => { 'id' => 111, 'type' => 'aaaformats' }
+                'data' => [
+                  { 'id' => 111, 'type' => 'aaaformats' },
+                  { 'id' => 444, 'type' => 'aaaformats' },
+                ]
               }
             }
           }
@@ -166,6 +183,100 @@ describe Grape::Jsonapi::Formatter do
         expect(subject['data']['relationships']).to eq(answer['data']['relationships'])
         answer['included'].each do |current|
           expect(subject['included']).to include(current)
+        end
+      end
+
+      context 'when an entity nests itself' do
+        let(:resource) do
+          OpenStruct.new(
+            id: 1,
+            author: 'me',
+            comments: [
+              OpenStruct.new(
+                id: 2,
+                author: 'you',
+                comments: [
+                  OpenStruct.new(
+                    id: 3,
+                    author: 'foo',
+                    comments: [
+                      OpenStruct.new(
+                        id: 4,
+                        author: 'boo'
+                      )
+                    ]
+                  )
+                ]
+              )
+            ]
+          )
+        end
+
+        let(:answer_data) do
+          {
+            'id' => 1,
+            'type' => 'comments',
+            'attributes' => {
+              'author' => 'me'
+            },
+            'relationships' => {
+              'comments' => {
+                'data' => { 'id' => 2, 'type' => 'comments' }
+              }
+            }
+          }
+        end
+
+        let(:answer_included) do
+          [
+            {
+              'id' => 2,
+              'type' => 'comments',
+              'attributes' => {
+                'author' => 'you'
+              },
+              'relationships' => {
+                'comments' => {
+                  'data' => { 'id' => 3, 'type' => 'comments' }
+                }
+              }
+            }
+          ]
+        end
+
+        let(:fresh_class) do
+          class Comment < Grape::Jsonapi::Entity::Resource
+            attribute :author
+            nest :comments, using: Comment
+          end
+
+          Grape::Jsonapi::Document.top(Comment)
+        end
+
+        let(:data) do
+          fresh_class.represent(data: resource)
+        end
+
+        let(:answer) do
+          {
+            'jsonapi' => { 'version' => '1.0' },
+            'data' => answer_data,
+            'included' => answer_included
+          }
+        end
+
+        it 'represents data only one level deep' do
+          expect(subject).to have_key('jsonapi')
+          expect(subject).to have_key('data')
+          expect(subject).to have_key('included')
+          expect(subject['data']['id']).to eq(answer['data']['id'])
+          expect(subject['data']['id']).to eq(answer['data']['id'])
+          expect(subject['data']['type']).to eq(answer['data']['type'])
+          expect(subject['data']['attributes']).to eq(answer['data']['attributes'])
+          expect(subject['data']['relationships']).to eq(answer['data']['relationships'])
+          answer['included'].each do |current|
+            expect(subject['included']).to include(current)
+          end
         end
       end
     end
