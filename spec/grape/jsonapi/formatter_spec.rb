@@ -181,8 +181,117 @@ describe Grape::Jsonapi::Formatter do
         expect(subject['data']['type']).to eq(answer['data']['type'])
         expect(subject['data']['attributes']).to eq(answer['data']['attributes'])
         expect(subject['data']['relationships']).to eq(answer['data']['relationships'])
-        answer['included'].each do |current|
-          expect(subject['included']).to include(current)
+        subject['included'].each do |current|
+          expect(answer['included']).to include(current)
+        end
+      end
+
+      context '--complex' do
+        let(:resource) do
+          OpenStruct.new(
+            id: 111,
+            color: 'blue',
+            related_to: OpenStruct.new(
+              id: 222,
+              name: 'tshirt',
+              related_to: [
+                OpenStruct.new(
+                  id: 111,
+                  color: 'blue',
+                  related_to: OpenStruct.new(
+                    id: 222,
+                    name: 'tshirt'
+                  ),
+                ),
+                OpenStruct.new(
+                  id: 444,
+                  color: 'red',
+                  related_to: OpenStruct.new(
+                    id: 222,
+                    name: 'tshirt'
+                  ),
+                )
+              ]
+            )
+          )
+        end
+
+        let(:answer_data) do
+          {
+            'id' => 111,
+            'type' => 'aaaformats',
+            'attributes' => {
+              'color' => 'blue'
+            },
+            'relationships' => {
+              'related_to' => {
+                'data' => { 'id' => 222, 'type' => 'bbbformats' }
+              }
+            }
+          }
+        end
+
+        let(:answer_included) do
+          [
+            {
+              'id' => 222,
+              'type' => 'bbbformats',
+              'attributes' => {
+                'name' => 'tshirt'
+              },
+              'relationships' => {
+                'related_to' => {
+                  'data' => [
+                    { 'id' => 111, 'type' => 'aaaformats' },
+                    { 'id' => 444, 'type' => 'aaaformats' },
+                  ]
+                }
+              }
+            }
+          ]
+        end
+
+        let(:fresh_class) do
+          class BBBformat < Grape::Jsonapi::Entity::Resource
+          end
+
+          class AAAformat < Grape::Jsonapi::Entity::Resource
+            attribute :color
+            nest :related_to, using: BBBformat
+          end
+
+          class BBBformat < Grape::Jsonapi::Entity::Resource
+            attribute :name
+            nest :related_to, using: AAAformat
+          end
+
+          Grape::Jsonapi::Document.top(AAAformat)
+        end
+
+        let(:data) do
+          fresh_class.represent(data: resource)
+        end
+
+        let(:answer) do
+          {
+            'jsonapi' => { 'version' => '1.0' },
+            'data' => answer_data,
+            'included' => answer_included
+          }
+        end
+
+        it 'represents data only one level deep' do
+          expect(subject).to have_key('jsonapi')
+          expect(subject).to have_key('data')
+          expect(subject).to have_key('included')
+          expect(subject['data']['id']).to eq(answer['data']['id'])
+          expect(subject['data']['id']).to eq(answer['data']['id'])
+          expect(subject['data']['type']).to eq(answer['data']['type'])
+          expect(subject['data']['attributes']).to eq(answer['data']['attributes'])
+          expect(subject['data']['relationships']).to eq(answer['data']['relationships'])
+          subject['included'].each do |current|
+            expect(answer['included']).to include(current)
+          end
         end
       end
 
@@ -221,7 +330,7 @@ describe Grape::Jsonapi::Formatter do
             },
             'relationships' => {
               'comments' => {
-                'data' => { 'id' => 2, 'type' => 'comments' }
+                'data' => [{ 'id' => 2, 'type' => 'comments' }]
               }
             }
           }
@@ -237,7 +346,7 @@ describe Grape::Jsonapi::Formatter do
               },
               'relationships' => {
                 'comments' => {
-                  'data' => { 'id' => 3, 'type' => 'comments' }
+                  'data' => [{ 'id' => 3, 'type' => 'comments' }]
                 }
               }
             }
@@ -274,6 +383,9 @@ describe Grape::Jsonapi::Formatter do
           expect(subject['data']['type']).to eq(answer['data']['type'])
           expect(subject['data']['attributes']).to eq(answer['data']['attributes'])
           expect(subject['data']['relationships']).to eq(answer['data']['relationships'])
+          subject['included'].each do |current|
+            expect(answer['included']).to include(current)
+          end
           answer['included'].each do |current|
             expect(subject['included']).to include(current)
           end
@@ -303,8 +415,8 @@ describe Grape::Jsonapi::Formatter do
         expect(subject['data']['type']).to eq(answer['data']['type'])
         expect(subject['data']['attributes']).to eq(answer['data']['attributes'])
         expect(subject['data']['relationships']).to eq(answer['data']['relationships'])
-        answer['included'].each do |current|
-          expect(subject['included']).to include(current)
+        subject['included'].each do |current|
+          expect(answer['included']).to include(current)
         end
       end
     end
@@ -330,8 +442,8 @@ describe Grape::Jsonapi::Formatter do
         expect(subject['data'].first['type']).to eq(answer['data'].first['type'])
         expect(subject['data'].first['attributes']).to eq(answer['data'].first['attributes'])
         expect(subject['data'].first['relationships']).to eq(answer['data'].first['relationships'])
-        answer['included'].each do |current|
-          expect(subject['included']).to include(current)
+        subject['included'].each do |current|
+          expect(answer['included']).to include(current)
         end
       end
     end
