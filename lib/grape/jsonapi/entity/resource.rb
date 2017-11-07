@@ -76,9 +76,14 @@ module Grape
           )
         end
 
+        def self._relationship_name(name, options)
+          options.key?(:as) ? options[:as] : name
+        end
+
         def self._expose_relationships(name, options = {})
+          better_name = _relationship_name(name, options)
           relation = ::Grape::Entity::Exposure
-                     .new(name,
+                     .new(better_name,
                           nesting: true,
                           if: Jsonapi::Exposer.field_exists?(name.to_sym))
           relationships_exposure.nested_exposures << relation

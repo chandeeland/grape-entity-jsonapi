@@ -46,54 +46,77 @@ describe Grape::Jsonapi::Entity::Resource do
       end
     end
     context '.nest' do
-      before do
-        fresh_class.nest :aaa
-        fresh_class.nest :bbb
-      end
-
       context ':included' do
         subject do
           fresh_class.root_exposures.select { |r| r.attribute == :included }
+        end
+        let(:relationships) { subject.first.nested_exposures }
+        before do
+          fresh_class.nest :aaa
+          fresh_class.nest :bbb
         end
 
         it 'adds :included field' do
           expect(subject.count).to eq 1
         end
 
-        let(:relationships) { subject.first.nested_exposures }
         it 'has :[relative] labels inside' do
           expect(relationships.size).to eq 2
           expect(relationships.map(&:attribute)).to eq %i[aaa bbb]
         end
       end
+
       context ':relationships' do
         subject do
           fresh_class.root_exposures.select { |r| r.attribute == :relationships }
         end
 
-        it 'adds :relationships field' do
-          expect(subject.count).to eq 1
+        context 'no flags' do
+          before do
+            fresh_class.nest :aaa
+            fresh_class.nest :bbb
+          end
+
+          it 'adds :relationships field' do
+            expect(subject.count).to eq 1
+          end
+
+          let(:relationships) { subject.first.nested_exposures }
+          it 'has :[relative] labels inside' do
+            expect(relationships.size).to eq 2
+            expect(relationships.map(&:attribute)).to eq %i[aaa bbb]
+          end
+
+          let(:relationships_child) { relationships.first.nested_exposures }
+          it 'has a :data label inside' do
+            expect(relationships_child.size).to eql(1)
+            expect(relationships_child.first.attribute).to eq(:aaa)
+            expect(relationships_child.first.key).to eq(:data)
+          end
+
+          let(:rel_child_data) { relationships_child.first }
+          it 'has correct options' do
+            expect(rel_child_data.send(:options).keys).to include(:using)
+          end
         end
 
-        let(:relationships) { subject.first.nested_exposures }
-        it 'has :[relative] labels inside' do
-          expect(relationships.size).to eq 2
-          expect(relationships.map(&:attribute)).to eq %i[aaa bbb]
-        end
+        context 'with flags' do
+          context ':as' do
+            before do
+              fresh_class.nest :aaa, as: :ccc
+              fresh_class.nest :bbb
+            end
 
-        let(:relationships_child) { relationships.first.nested_exposures }
-        it 'has a :data label inside' do
-          expect(relationships_child.size).to eql(1)
-          expect(relationships_child.first.attribute).to eq(:aaa)
-          expect(relationships_child.first.key).to eq(:data)
-        end
-
-        let(:rel_child_data) { relationships_child.first }
-        it 'has correct options' do
-          expect(rel_child_data.send(:options).keys).to include(:using)
+            let(:relationships) { subject.first.nested_exposures }
+            it 'has :[relative] labels inside' do
+              expect(relationships.size).to eq 2
+              expect(relationships.map(&:attribute)).to eq %i[ccc bbb]
+            end
+          end
         end
       end
     end
+
     context '.represent' do
       subject { fresh_class.represent(data).serializable_hash }
 
