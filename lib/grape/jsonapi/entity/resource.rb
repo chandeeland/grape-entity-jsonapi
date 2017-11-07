@@ -92,7 +92,7 @@ module Grape
         end
 
         def self._expose_included(name, options = {})
-          opts = options.merge(if: Jsonapi::Exposer.field_exists?(name.to_sym))
+          opts = options.merge(if: Jsonapi::Exposer.one_level_deep?(name.to_sym))
           _expose_inside(included_exposure, [name, opts])
         end
 
