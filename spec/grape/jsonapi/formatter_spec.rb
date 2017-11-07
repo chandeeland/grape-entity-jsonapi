@@ -108,7 +108,7 @@ describe Grape::Jsonapi::Formatter do
                 parent: OpenStruct.new(
                   id: 222,
                   name: 'tshirt'
-                ),
+                )
               ),
               OpenStruct.new(
                 id: 444,
@@ -116,7 +116,7 @@ describe Grape::Jsonapi::Formatter do
                 parent: OpenStruct.new(
                   id: 222,
                   name: 'tshirt'
-                ),
+                )
               )
             ]
           )
@@ -135,7 +135,7 @@ describe Grape::Jsonapi::Formatter do
               'child' => {
                 'data' => [
                   { 'id' => 111, 'type' => 'aaaformats' },
-                  { 'id' => 444, 'type' => 'aaaformats' },
+                  { 'id' => 444, 'type' => 'aaaformats' }
                 ]
               }
             }
@@ -201,7 +201,7 @@ describe Grape::Jsonapi::Formatter do
                   related_to: OpenStruct.new(
                     id: 222,
                     name: 'tshirt'
-                  ),
+                  )
                 ),
                 OpenStruct.new(
                   id: 444,
@@ -209,7 +209,7 @@ describe Grape::Jsonapi::Formatter do
                   related_to: OpenStruct.new(
                     id: 222,
                     name: 'tshirt'
-                  ),
+                  )
                 )
               ]
             )
@@ -243,7 +243,7 @@ describe Grape::Jsonapi::Formatter do
                 'related_to' => {
                   'data' => [
                     { 'id' => 111, 'type' => 'aaaformats' },
-                    { 'id' => 444, 'type' => 'aaaformats' },
+                    { 'id' => 444, 'type' => 'aaaformats' }
                   ]
                 }
               }
