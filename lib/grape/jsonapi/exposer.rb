@@ -21,6 +21,15 @@ module Grape
         end
       end
 
+      def self.one_level_deep?(field)
+        field_exist = field_exists?(field)
+        lambda do |instance, options|
+          depth = options.opts_hash.dig(:attr_path).count(:included)
+          return true if field_exist.call(instance, options) && depth == 1
+          false
+        end
+      end
+
       def self.non_empty_array?(field)
         field_exist = field_exists?(field)
         lambda do |instance, options|

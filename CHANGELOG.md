@@ -7,3 +7,5 @@
 ### 0.4.0 (2017-07-09)
 * Formatter change to properly handle an Array of objects - [@aperezmontan] (https://github.com/aperezmontan)
 * Formatter bug fix and tests added - [@chandeeland] (https://github.com/chandeeland)
+### 0.6.0 (2017-11-08)
+* Entity::Resource change to address recursive nesting - [@aperezmontan] (https://github.com/aperezmontan)
