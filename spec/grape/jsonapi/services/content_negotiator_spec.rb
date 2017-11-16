@@ -1,51 +1,76 @@
 describe Grape::Jsonapi::Services::ContentNegotiator do
-  let(:headers) do
+  let(:api_version) { "some-version" }
+
+  let(:base_headers) do
     {
       "Host" => "www.example.com",
-      "Accept" => "application/vnd.geoffrey-v20170505+json",
       "Authorization" => "Bearer testToken123",
       "Cookie" => ""
     }
   end
 
   subject do
-    Grape::Jsonapi::Services::ContentNegotiator.new(headers).run
+    Grape::Jsonapi::Services::ContentNegotiator.run(api_version, headers)
   end
 
   describe '#run' do
-    context 'when the headers contain ' do
+    context 'when the headers have valid Accept-Version and a valid media type' do
+      let(:headers) do
+        base_headers.merge(
+          {
+            "Accept-Version" => api_version,
+            "Content-Type" => "application/vnd+json"
+          }
+        )
+      end
+
       it 'is true' do
         expect(subject).to eq(true)
       end
     end
 
-    context 'when the headers contains a Content-Type with any media type parameters' do
+    context 'when the headers have an invalid Accept-Version and a valid media type' do
       let(:headers) do
-        {
-          "Host" => "www.example.com",
-          "Content-Type" => "application/vnd.geoffrey-v20170505+json; version=1",
-          "Authorization" => "Bearer testToken123",
-          "Cookie" => ""
-        }
+        base_headers.merge(
+          {
+            "Accept-Version" => "some-other-version",
+            "Content-Type" => "application/vnd+json"
+          }
+        )
       end
 
-      it 'is 415 Unsupported Media Type' do
-        expect(subject).to eq(415)
+      it 'is false' do
+        expect(subject).to eq(false)
       end
     end
 
-    context 'when the headers contains the JSON API media type and all instances of that media type are modified with media type parameters.' do
+    context 'when the headers contain a Content-Type with any media type parameters' do
       let(:headers) do
-        {
-          "Host" => "www.example.com",
-          "Accept" => "application/vnd.geoffrey-v20170505+json; version=1",
-          "Authorization" => "Bearer testToken123",
-          "Cookie" => ""
-        }
+        base_headers.merge(
+          {
+            "Content-Type" => "application/vnd+json; version=1"
+          }
+        )
+      end
+
+      it 'is 415 Unsupported Media Type' do
+        expect(subject[:status]).to eq(415)
+        expect(subject[:message]).to eq("Unsupported Media Type")
+      end
+    end
+
+    context 'when the headers contains the JSON API media type and all instances of that media type are modified with media type parameters' do
+      let(:headers) do
+        base_headers.merge(
+          {
+            "Accept" => "application/vnd.geoffrey-v20170505+json; version=1",
+          }
+        )
       end
 
       it 'is 406 Not Acceptable' do
-        expect(subject).to eq(415)
+        expect(subject[:status]).to eq(406)
+        expect(subject[:message]).to eq("Not Acceptable")
       end
     end
   end
