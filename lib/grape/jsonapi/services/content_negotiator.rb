@@ -2,18 +2,18 @@ module Grape
   module Jsonapi
     module Services
       class ContentNegotiator
-        VALID_MEDIA_TYPE = "application/vnd+json"
+        VALID_MEDIA_TYPE = 'application/vnd+json'.freeze
 
         ERRORS = {
           not_acceptable: {
             status: 406,
-            message: "Not Acceptable"
+            message: 'Not Acceptable'
           },
           unsupported_media: {
             status: 415,
-            message: "Unsupported Media Type"
+            message: 'Unsupported Media Type'
           }
-        }
+        }.freeze
 
         def initialize(api_version, headers)
           @api_version    = api_version
