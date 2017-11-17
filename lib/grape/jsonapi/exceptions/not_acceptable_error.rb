@@ -2,9 +2,9 @@ module Grape
   module Jsonapi
     module Exceptions
       class NotAcceptableError < StandardError
-        MESSAGE = 'Not Acceptable'
+        MESSAGE = 'Not Acceptable'.freeze
 
-        def initialize(msg=MESSAGE)
+        def initialize(msg = MESSAGE)
           super
         end
       end
