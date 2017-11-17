@@ -1,6 +1,4 @@
 describe Grape::Jsonapi::Services::ContentNegotiator do
-  let(:api_version) { 'some-version' }
-
   let(:base_headers) do
     {
       'Host' => 'www.example.com',
@@ -10,7 +8,7 @@ describe Grape::Jsonapi::Services::ContentNegotiator do
   end
 
   subject do
-    Grape::Jsonapi::Services::ContentNegotiator.run(api_version, headers)
+    Grape::Jsonapi::Services::ContentNegotiator.run(headers)
   end
 
   describe 'VALID_MEDIA_TYPE' do
@@ -21,12 +19,9 @@ describe Grape::Jsonapi::Services::ContentNegotiator do
   end
 
   describe '#run' do
-    context 'when the headers have valid Accept-Version and a valid media type' do
+    context 'when the headers are JSON API compliant' do
       let(:headers) do
-        base_headers.merge(
-          'Accept-Version' => api_version,
-          'Content-Type' => 'application/vnd+json'
-        )
+        base_headers.merge('Content-Type' => 'application/vnd+json')
       end
 
       it 'is true' do
@@ -34,24 +29,9 @@ describe Grape::Jsonapi::Services::ContentNegotiator do
       end
     end
 
-    context 'when the headers have an invalid Accept-Version and a valid media type' do
-      let(:headers) do
-        base_headers.merge(
-          'Accept-Version' => 'some-other-version',
-          'Content-Type' => 'application/vnd+json'
-        )
-      end
-
-      it 'is false' do
-        expect(subject).to eq(false)
-      end
-    end
-
     context 'when the headers contain a Content-Type with any media type parameters' do
       let(:headers) do
-        base_headers.merge(
-          'Content-Type' => 'application/vnd+json; version=1'
-        )
+        base_headers.merge('Content-Type' => 'application/vnd+json; version=1')
       end
 
       it 'is 415 Unsupported Media Type' do

@@ -15,9 +15,7 @@ module Grape
           }
         }.freeze
 
-        def initialize(api_version, headers)
-          @api_version    = api_version
-          @accept_version = headers['Accept-Version']
+        def initialize(headers)
           @content_type   = headers['Content-Type']
           @accept_header  = headers['Accept']
         end
@@ -30,19 +28,15 @@ module Grape
           return ERRORS[:unsupported_media] unless valid?(content_type)
           return ERRORS[:not_acceptable] unless valid?(accept_header)
 
-          valid_accept_version_header?
+          true
         end
 
         private
 
-        attr_reader :api_version, :accept_version, :content_type, :accept_header
+        attr_reader :content_type, :accept_header
 
         def valid?(header)
           VALID_MEDIA_TYPE == header || header.nil?
-        end
-
-        def valid_accept_version_header?
-          api_version == accept_version
         end
       end
     end
