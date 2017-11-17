@@ -13,6 +13,13 @@ describe Grape::Jsonapi::Services::ContentNegotiator do
     Grape::Jsonapi::Services::ContentNegotiator.run(api_version, headers)
   end
 
+  describe 'VALID_MEDIA_TYPE' do
+    it 'is the JSON API compliant media type' do
+      expect(Grape::Jsonapi::Services::ContentNegotiator::VALID_MEDIA_TYPE)
+        .to eq('application/vnd+json')
+    end
+  end
+
   describe '#run' do
     context 'when the headers have valid Accept-Version and a valid media type' do
       let(:headers) do
