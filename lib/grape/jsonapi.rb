@@ -1,4 +1,4 @@
-require 'grape/jsonapi/exceptions/filter_error'
+require 'grape/jsonapi/exceptions'
 require 'grape/jsonapi/document'
 require 'grape/jsonapi/exposer'
 require 'grape/jsonapi/entity'
