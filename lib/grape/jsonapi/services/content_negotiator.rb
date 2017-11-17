@@ -4,17 +4,6 @@ module Grape
       class ContentNegotiator
         VALID_MEDIA_TYPE = 'application/vnd+json'.freeze
 
-        ERRORS = {
-          not_acceptable: {
-            status: 406,
-            message: 'Not Acceptable'
-          },
-          unsupported_media: {
-            status: 415,
-            message: 'Unsupported Media Type'
-          }
-        }.freeze
-
         def initialize(headers)
           @content_type   = headers['Content-Type']
           @accept_header  = headers['Accept']
@@ -25,8 +14,8 @@ module Grape
         end
 
         def run
-          return ERRORS[:unsupported_media] unless valid?(content_type)
-          return ERRORS[:not_acceptable] unless valid?(accept_header)
+          raise unsupported_media_type_error unless valid?(content_type)
+          raise not_acceptable_error unless valid?(accept_header)
 
           true
         end
@@ -37,6 +26,14 @@ module Grape
 
         def valid?(header)
           VALID_MEDIA_TYPE == header || header.nil?
+        end
+
+        def unsupported_media_type_error
+          Grape::Jsonapi::Exceptions::UnsupportedMediaTypeError.new
+        end
+
+        def not_acceptable_error
+          Grape::Jsonapi::Exceptions::NotAcceptableError.new
         end
       end
     end

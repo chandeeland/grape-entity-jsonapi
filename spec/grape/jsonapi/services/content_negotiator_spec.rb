@@ -34,9 +34,12 @@ describe Grape::Jsonapi::Services::ContentNegotiator do
         base_headers.merge('Content-Type' => 'application/vnd+json; version=1')
       end
 
-      it 'is 415 Unsupported Media Type' do
-        expect(subject[:status]).to eq(415)
-        expect(subject[:message]).to eq('Unsupported Media Type')
+      let(:unsupported_media_type_error) do
+        Grape::Jsonapi::Exceptions::UnsupportedMediaTypeError
+      end
+
+      it 'raises UnsupportedMediaTypeError' do
+        expect { subject }.to raise_exception(unsupported_media_type_error, unsupported_media_type_error::MESSAGE)
       end
     end
 
@@ -47,9 +50,12 @@ describe Grape::Jsonapi::Services::ContentNegotiator do
         )
       end
 
+      let(:not_acceptable_error) do
+        Grape::Jsonapi::Exceptions::NotAcceptableError
+      end
+
       it 'is 406 Not Acceptable' do
-        expect(subject[:status]).to eq(406)
-        expect(subject[:message]).to eq('Not Acceptable')
+        expect { subject }.to raise_exception(not_acceptable_error, not_acceptable_error::MESSAGE)
       end
     end
   end
