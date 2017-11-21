@@ -14,8 +14,8 @@ module Grape
         end
 
         def run
-          raise unsupported_media_type_error unless valid?(content_type)
-          raise not_acceptable_error unless valid?(accept_header)
+          raise unsupported_media_type_error  unless valid?(content_type)
+          raise not_acceptable_error          unless valid_accept_header?
 
           true
         end
@@ -25,7 +25,11 @@ module Grape
         attr_reader :accept_header, :content_type
 
         def valid?(header)
-          VALID_MEDIA_TYPE == header || header.nil?
+          VALID_MEDIA_TYPE == header
+        end
+
+        def valid_accept_header?
+          valid?(accept_header) || accept_header.nil?
         end
 
         def unsupported_media_type_error

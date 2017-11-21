@@ -18,42 +18,76 @@ describe Grape::Jsonapi::Services::ContentNegotiator do
     end
 
     context 'when the headers are JSON API compliant' do
-      it 'is true' do
-        expect(subject).to eq(true)
+      context 'when the Content-Type is the correct media type' do
+        it 'is true' do
+          expect(subject).to eq(true)
+        end
+      end
+
+      context 'when the Accept header contains no media type' do
+        let(:accept_header) { nil }
+
+        it 'is true' do
+          expect(subject).to eq(true)
+        end
       end
     end
 
-    context 'when the headers contain a Content-Type with any media type parameters' do
-      let(:content_type) { 'application/vnd+json; version=1' }
-
+    context 'when the headers are not JSON API compliant' do
       let(:unsupported_media_type_error) do
         Grape::Jsonapi::Exceptions::UnsupportedMediaTypeError
-      end
-
-      it 'raises UnsupportedMediaTypeError' do
-        expect { subject }
-          .to raise_exception(
-            unsupported_media_type_error,
-            unsupported_media_type_error::MESSAGE
-          )
-      end
-    end
-
-    context 'when the headers contain the JSON API media type and all instances of that media type are modified with media type parameters' do
-      let(:accept_header) do
-        'application/vnd.geoffrey-v20170505+json; version=1'
       end
 
       let(:not_acceptable_error) do
         Grape::Jsonapi::Exceptions::NotAcceptableError
       end
 
-      it 'is 406 Not Acceptable' do
-        expect { subject }
-          .to raise_exception(
-            not_acceptable_error,
-            not_acceptable_error::MESSAGE
-          )
+      context 'when the Content-Type has any media type parameters' do
+        let(:content_type) { 'application/vnd+json; version=1' }
+
+        it 'raises UnsupportedMediaTypeError' do
+          expect { subject }
+            .to raise_exception(
+              unsupported_media_type_error,
+              unsupported_media_type_error::MESSAGE
+            )
+        end
+      end
+
+      context 'when the Accept header contains the JSON API media type and all instances of that media type are modified with media type parameters' do
+        let(:accept_header) { 'application/vnd+json; version=1' }
+
+        it 'raises NotAcceptableError' do
+          expect { subject }
+            .to raise_exception(
+              not_acceptable_error,
+              not_acceptable_error::MESSAGE
+            )
+        end
+      end
+
+      context 'when the Content-Type is invalid' do
+        let(:content_type) { 'some-invalid-content-type' }
+
+        it 'raises UnsupportedMediaTypeError' do
+          expect { subject }
+            .to raise_exception(
+              unsupported_media_type_error,
+              unsupported_media_type_error::MESSAGE
+            )
+        end
+      end
+
+      context 'when the Content-Type header contains no media type' do
+        let(:content_type) { nil }
+
+        it 'raises UnsupportedMediaTypeError' do
+          expect { subject }
+            .to raise_exception(
+              unsupported_media_type_error,
+              unsupported_media_type_error::MESSAGE
+            )
+        end
       end
     end
   end
