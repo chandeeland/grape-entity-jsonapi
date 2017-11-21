@@ -32,7 +32,7 @@ describe Grape::Jsonapi::Services::ContentNegotiator do
       end
     end
 
-    context 'when the headers contains the JSON API media type and all instances of that media type are modified with media type parameters' do
+    context 'when the headers contain the JSON API media type and all instances of that media type are modified with media type parameters' do
       let(:accept_header) do
         'application/vnd.geoffrey-v20170505+json; version=1'
       end
