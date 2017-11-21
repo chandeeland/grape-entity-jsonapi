@@ -4,9 +4,9 @@ module Grape
       class ContentNegotiator
         VALID_MEDIA_TYPE = 'application/vnd+json'.freeze
 
-        def initialize(headers)
-          @content_type   = headers['Content-Type']
-          @accept_header  = headers['Accept']
+        def initialize(accept_header, content_type)
+          @accept_header  = accept_header
+          @content_type   = content_type
         end
 
         def self.run(*args)
@@ -22,7 +22,7 @@ module Grape
 
         private
 
-        attr_reader :content_type, :accept_header
+        attr_reader :accept_header, :content_type
 
         def valid?(header)
           VALID_MEDIA_TYPE == header || header.nil?

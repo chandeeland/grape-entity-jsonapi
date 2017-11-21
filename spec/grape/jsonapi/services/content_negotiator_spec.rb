@@ -1,16 +1,4 @@
 describe Grape::Jsonapi::Services::ContentNegotiator do
-  let(:base_headers) do
-    {
-      'Host' => 'www.example.com',
-      'Authorization' => 'Bearer testToken123',
-      'Cookie' => ''
-    }
-  end
-
-  subject do
-    Grape::Jsonapi::Services::ContentNegotiator.run(headers)
-  end
-
   describe 'VALID_MEDIA_TYPE' do
     it 'is the JSON API compliant media type' do
       expect(Grape::Jsonapi::Services::ContentNegotiator::VALID_MEDIA_TYPE)
@@ -19,20 +7,21 @@ describe Grape::Jsonapi::Services::ContentNegotiator do
   end
 
   describe '#run' do
-    context 'when the headers are JSON API compliant' do
-      let(:headers) do
-        base_headers.merge('Content-Type' => 'application/vnd+json')
-      end
+    let(:accept_header) { 'application/vnd+json' }
+    let(:content_type)  { 'application/vnd+json' }
 
+    subject do
+      Grape::Jsonapi::Services::ContentNegotiator.run(accept_header, content_type)
+    end
+
+    context 'when the headers are JSON API compliant' do
       it 'is true' do
         expect(subject).to eq(true)
       end
     end
 
     context 'when the headers contain a Content-Type with any media type parameters' do
-      let(:headers) do
-        base_headers.merge('Content-Type' => 'application/vnd+json; version=1')
-      end
+      let(:content_type) { 'application/vnd+json; version=1' }
 
       let(:unsupported_media_type_error) do
         Grape::Jsonapi::Exceptions::UnsupportedMediaTypeError
@@ -44,10 +33,8 @@ describe Grape::Jsonapi::Services::ContentNegotiator do
     end
 
     context 'when the headers contains the JSON API media type and all instances of that media type are modified with media type parameters' do
-      let(:headers) do
-        base_headers.merge(
-          'Accept' => 'application/vnd.geoffrey-v20170505+json; version=1'
-        )
+      let(:accept_header) do
+        'application/vnd.geoffrey-v20170505+json; version=1'
       end
 
       let(:not_acceptable_error) do
