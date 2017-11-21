@@ -4,7 +4,7 @@ module Grape
       class ContentNegotiator
         VALID_MEDIA_TYPE = 'application/vnd+json'.freeze
 
-        def initialize(accept_header, content_type)
+        def initialize(accept_header:, content_type:)
           @accept_header  = accept_header
           @content_type   = content_type
         end
