@@ -2,7 +2,7 @@ module Grape
   module Jsonapi
     module Exceptions
       class UnsupportedMediaTypeError < StandardError
-        MESSAGE = 'Unsupported Media Type'.freeze
+        MESSAGE = 'Content-Type must be JSON API-compliant'.freeze
 
         def initialize(msg = MESSAGE)
           super
