@@ -12,3 +12,5 @@
 ### 0.7.0 (2017-11-22)
 * Services module added - [@alexshook] (https://github.com/alexshook)
 * Content negotiation service added - [@alexshook] (https://github.com/alexshook)
+### 0.7.1 (2017-11-22)
+* Fix media type bug - [@alexshook] (https://github.com/alexshook)
