@@ -9,3 +9,6 @@
 * Formatter bug fix and tests added - [@chandeeland] (https://github.com/chandeeland)
 ### 0.6.0 (2017-11-08)
 * Entity::Resource change to address recursive nesting - [@aperezmontan] (https://github.com/aperezmontan)
+### 0.7.0 (2017-11-22)
+* Services module added - [@alexshook] (https://github.com/alexshook)
+* Content negotiation service added - [@alexshook] (https://github.com/alexshook)
