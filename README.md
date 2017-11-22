@@ -128,6 +128,28 @@ but instead of passing your entity directly to :with, we wrap it in a factory ca
   end
 ```
 
+### Content Negotiation
+
+This fulfills server responsibilites for [JSON API Content Negotiation v1.0](http://jsonapi.org/format/#content-negotiation)
+and makes one addition. JSON API specifies that the client must send `Content-Type: application/vnd.api+json` with all
+request documents. This gem specifies that the client must send `Content-Type: application/vnd.api+json` with every request,
+regardless of whether sending a document or not.
+
+#### Exceptions
+Two new exceptions have also been added.
+* UnsupportedMediaTypeError is raised when the Content-Type header is invalid.
+* NotAcceptableError is raised when the Accept header is invalid.
+
+Usage:
+* Run the service and pass it the Accept header and Content-Type header.
+* It returns `true` or raises exception if not JSON API-compliant.
+
+```ruby
+
+Grape::Jsonapi::Services::ContentNegotiator.run(accept_header, content_type)
+
+```
+
 ## TODO
 
 ### Document Structures
