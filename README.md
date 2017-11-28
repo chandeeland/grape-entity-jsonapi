@@ -145,9 +145,49 @@ Usage:
 * It returns `true` or raises exception if not JSON API-compliant.
 
 ```ruby
-
 Grape::Jsonapi::Services::ContentNegotiator.run(accept_header, content_type)
+```
 
+### Fetching & Parameters
+
+#### Filtering
+
+This follows the JSON APi specifications for [filtering](http://jsonapi.org/format/#fetching-filtering).
+
+##### Formats
+* Accepts a hash with the key as search field:
+```ruby
+{ foo: value }
+```
+* When value is scalar type, operation 'equals(==)' is implied:
+```ruby
+{ foo: 'scalar', bar: 123 } => where(foo: 'scalar', bar: 123)
+```
+* if value is an array, 'IN' operation is applied:
+```ruby
+{ foo: [1,2,3] } => where(:foo.in([1,2,3]))
+```
+* if value is a Hash, there must be one entry, of which the value_key is the operation, and the value must be scalar. Valid operations include `<`, `<=`, `>`, `>=`, `==`:
+```ruby
+{ foo: {'<': 100 } } => where(foo < 100)
+```
+In your API, accept an optional `filter` parameter with with a custom type. It should call the Filter module's `allow` method and pass it your search term:
+
+```ruby
+  params do
+    optional :filter, type:
+      Grape::Jsonapi::Parameters::Filter.allow([:something_id])
+  end
+```
+
+Pass the params like this in your tests:
+
+```ruby
+  context 'with a something' do
+    let(:params) do
+      { filter: JSON.unparse(something_id: [something.id.to_s]) }
+    end
+  end
 ```
 
 ## TODO
@@ -161,7 +201,6 @@ Grape::Jsonapi::Services::ContentNegotiator.run(accept_header, content_type)
 - [sparce-fieldsets](http://jsonapi.org/format/#fetching-sparse-fieldsets)
 - [sorting](http://jsonapi.org/format/#fetching-sorting)
 - [pagination](http://jsonapi.org/format/#fetching-pagination)
-- [filtering](http://jsonapi.org/format/#fetching-filtering)
 
 ### Error Handling
 -
