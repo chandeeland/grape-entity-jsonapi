@@ -46,26 +46,6 @@ describe Grape::Jsonapi::Entity::Resource do
       end
     end
     context '.nest' do
-      context ':included' do
-        subject do
-          fresh_class.root_exposures.select { |r| r.attribute == :included }
-        end
-        let(:relationships) { subject.first.nested_exposures }
-        before do
-          fresh_class.nest :aaa
-          fresh_class.nest :bbb
-        end
-
-        it 'adds :included field' do
-          expect(subject.count).to eq 1
-        end
-
-        it 'has :[relative] labels inside' do
-          expect(relationships.size).to eq 2
-          expect(relationships.map(&:attribute)).to eq %i[aaa bbb]
-        end
-      end
-
       context ':relationships' do
         subject do
           fresh_class.root_exposures.select { |r| r.attribute == :relationships }
@@ -155,10 +135,6 @@ describe Grape::Jsonapi::Entity::Resource do
               id: 999,
               type: 'bbbs'
             )
-            expect(subject[:included]).to have_key :parent
-            expect(subject[:included][:parent][:id]).to eq 999
-            expect(subject[:included][:parent][:type]).to eq 'bbbs'
-            expect(subject[:included][:parent][:attributes][:size]).to eq 'XXL'
           end
         end
 
@@ -176,8 +152,6 @@ describe Grape::Jsonapi::Entity::Resource do
             expect(subject[:type]).to eql('aaas')
             expect(subject[:attributes]).to eq(color: :red)
             expect(subject[:relationships]).not_to have_key :parent
-
-            expect(subject[:included]).not_to have_key :parent
           end
         end
       end
@@ -262,9 +236,7 @@ describe Grape::Jsonapi::Entity::Resource do
             )
           end
 
-          it 'represents relationships and inclusions correctly' do
-            expect(subject[:included][:parent][:attributes][:size]).to eq 'XXL'
-            expect(subject[:included][:parent][:id]).to be_a String
+          it 'represents relationships correctly' do
             expect(subject[:relationships][:parent][:data]).to eq(
               id: 'id_string',
               type: 'man_cats'

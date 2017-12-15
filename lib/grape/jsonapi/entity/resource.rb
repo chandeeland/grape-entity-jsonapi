@@ -20,14 +20,6 @@ module Grape
               end
             end
           end
-
-          def included_exposure
-            @included_exposure ||= begin
-              ::Grape::Entity::Exposure.new(:included, nesting: true).tap do |inclusion|
-                root_exposure.nested_exposures << inclusion
-              end
-            end
-          end
         end
 
         def self.root(plural, _singular)
@@ -41,7 +33,6 @@ module Grape
 
         def self.nest(name, options = {})
           _expose_relationships(name, options)
-          _expose_included(name, options)
         end
 
         def self._relationship_options(name, options)
@@ -64,11 +55,6 @@ module Grape
           relationships_exposure.nested_exposures << relation
           opts = options.merge(if: Jsonapi::Exposer.field_exists?(name.to_sym))
           _expose_inside(relation, [name, _relationship_options(name, opts)])
-        end
-
-        def self._expose_included(name, options = {})
-          opts = options.merge(if: Jsonapi::Exposer.one_level_deep?(name.to_sym))
-          _expose_inside(included_exposure, [name, opts])
         end
 
         def self._expose_inside(new_nesting_stack, args, &block)
