@@ -14,3 +14,5 @@
 * Content negotiation service added - [@alexshook] (https://github.com/alexshook)
 ### 0.7.1 (2017-11-22)
 * Fix media type bug - [@alexshook] (https://github.com/alexshook)
+### 1.0.0 (2017-12-15)
+* Remove top level included member - [@alexshook] (https://github.com/alexshook)
