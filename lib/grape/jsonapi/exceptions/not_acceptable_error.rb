@@ -5,7 +5,7 @@ module Grape
         MESSAGE = 'Accept header must be JSON API-compliant'.freeze
 
         def initialize(msg = MESSAGE)
-          super
+          super(msg)
         end
       end
     end
