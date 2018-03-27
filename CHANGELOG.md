@@ -14,3 +14,5 @@
 * Content negotiation service added - [@alexshook] (https://github.com/alexshook)
 ### 0.7.1 (2017-11-22)
 * Fix media type bug - [@alexshook] (https://github.com/alexshook)
+### 0.7.4 (2018-03-27)
+* Fix LocalJumperror - [@aperezmontan] (https://github.com/aperezmontan)
