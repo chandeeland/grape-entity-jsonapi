@@ -25,8 +25,11 @@ module Grape
         field_exist = field_exists?(field)
         lambda do |instance, options|
           depth = options.opts_hash.dig(:attr_path).count(:included)
-          return true if field_exist.call(instance, options) && depth == 1
-          false
+          if field_exist.call(instance, options) && depth == 1
+            true
+          else
+            false
+          end
         end
       end
 
@@ -35,9 +38,14 @@ module Grape
         lambda do |instance, options|
           if field_exist.call(instance, options)
             value = field(instance, field)
-            return true if (value.is_a? Array) && (value.count > 0)
+            if (value.is_a? Array) && (value.count > 0)
+              true
+            else
+              false
+            end
+          else
+            false
           end
-          false
         end
       end
     end
