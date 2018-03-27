@@ -15,7 +15,7 @@ module Grape
 
       def top(resource)
         name = "Top#{resource.name.demodulize}"
-        @top[name] ||= Class.new(Grape::Jsonapi::Entity::Top).tap do |klass|
+        @top[resource.name] ||= Class.new(Grape::Jsonapi::Entity::Top).tap do |klass|
           Grape::Jsonapi::Document.const_set(name, klass)
 
           klass.expose :data,
