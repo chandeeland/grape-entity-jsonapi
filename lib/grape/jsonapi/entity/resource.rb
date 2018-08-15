@@ -30,7 +30,7 @@ module Grape
           end
         end
 
-        def self.root(plural, _singular)
+        def self.root(plural, _singular = nil)
           @type_plural = plural
         end
 
