@@ -93,4 +93,50 @@ describe Grape::Jsonapi::Entity::ResourceIdentifier do
       end
     end
   end
+
+  context '#custom_id_proc' do
+    subject do
+      fresh_class.represent(data).serializable_hash
+    end
+
+    let(:record_id) { 'ID' }
+    let(:alternate_id_attribute) { 'ALT_ID_A' }
+    let(:alternate_id_block) { 'ALT_ID_B' }
+    let(:data) do
+      OpenStruct.new(
+        id: record_id,
+        other_attribute: alternate_id_attribute,
+      )
+    end
+
+    context 'when custom id is specified' do
+      let(:fresh_class) { Cow }
+
+      context 'as an attribute name' do
+        before { fresh_class.entity_id :other_attribute }
+
+        it 'uses the custom id' do
+          expect(subject[:id]).to eq alternate_id_attribute
+        end
+      end
+
+      context 'as a block' do
+        before { fresh_class.entity_id { |obj| alternate_id_block } }
+
+        it 'uses the custom id' do
+          expect(subject[:id]).to eq alternate_id_block
+        end
+      end
+
+    end
+
+    context 'when custom id is not specified' do
+      let(:fresh_class) { Mouse }
+
+      it 'uses the record id' do
+        expect(subject[:id]).to eq record_id
+      end
+    end
+
+  end
 end
